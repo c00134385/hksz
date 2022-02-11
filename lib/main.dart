@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:hksz/ui/login.ui.dart';
 
 void main() {
   runApp(const MyApp());
@@ -102,6 +103,10 @@ class _MyHomePageState extends State<MyHomePage> {
               '$_counter',
               style: Theme.of(context).textTheme.headline4,
             ),
+            ElevatedButton(
+              onPressed: toLogin,
+              child: const Text('Login'),
+            ),
           ],
         ),
       ),
@@ -111,5 +116,11 @@ class _MyHomePageState extends State<MyHomePage> {
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+
+  toLogin() {
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+      return const LoginUI();
+    }));
   }
 }
