@@ -43,6 +43,8 @@ dependencies:
   dio_http_cache: any
   pretty_dio_logger: any
 
+  extended_image: any
+
 dev_dependencies:
   flutter_test:
     sdk: flutter

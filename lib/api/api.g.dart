@@ -51,6 +51,43 @@ class _MyApi implements MyApi {
     return value;
   }
 
+  @override
+  Future<dynamic> getVerify(random) async {
+    const _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    final _result = await _dio.fetch(_setStreamType<dynamic>(
+        Options(method: 'GET', headers: <String, dynamic>{}, extra: _extra)
+            .compose(_dio.options, '/user/getVerify?$random',
+                queryParameters: queryParameters, data: _data)
+            .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+    final value = _result.data;
+    return value;
+  }
+
+  @override
+  Future<Response<dynamic>> login(certType, certNo, pwd, verifyCode) async {
+    const _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _data = {
+      'certType': certType,
+      'certNo': certNo,
+      'pwd': pwd,
+      'verifyCode': verifyCode
+    };
+    final _result = await _dio.fetch<Map<String, dynamic>>(
+        _setStreamType<Response<dynamic>>(
+            Options(method: 'POST', headers: <String, dynamic>{}, extra: _extra)
+                .compose(_dio.options, '/user/login',
+                    queryParameters: queryParameters, data: _data)
+                .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+    final value = Response<dynamic>.fromJson(
+      _result.data!,
+      (json) => json as dynamic,
+    );
+    return value;
+  }
+
   RequestOptions _setStreamType<T>(RequestOptions requestOptions) {
     if (T != dynamic &&
         !(requestOptions.responseType == ResponseType.bytes ||

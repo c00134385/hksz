@@ -15,13 +15,18 @@ class TestInterceptor extends Interceptor {
       throw DioError(requestOptions: response.requestOptions, error: response.data);
     }
 
-    if(null == response.data['status']) {
-      throw DioError(requestOptions: response.requestOptions, error: response.data);
-    }
+    print('response.headers: ${response.headers}');
+    // if(response.headers.value('')) {
+    //
+    // }
 
-    if(200 != response.data['status']) {
-      throw DioError(requestOptions: response.requestOptions, error: response.data);
-    }
+    // if(null != response.data && 200 != response.data['status']) {
+    //   throw DioError(requestOptions: response.requestOptions, error: response.data);
+    // }
+
+    // if() {
+    //   throw DioError(requestOptions: response.requestOptions, error: response.data);
+    // }
 
     handler.next(response);
   }

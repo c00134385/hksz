@@ -16,6 +16,17 @@ abstract class MyApi {
 
   @POST('/nationality/getCertificateList')
   Future<Response<List<Certificate>>> getCertificateList();
+
+  @GET('/user/getVerify?{random}')
+  Future getVerify(@Path('random') String random);
+
+  @POST('/user/login')
+  Future<Response> login(
+    @Field('certType') int certType,
+    @Field('certNo') String certNo,
+    @Field('pwd') String pwd,
+    @Field('verifyCode') String verifyCode,
+  );
 }
 
 class MyClient {
