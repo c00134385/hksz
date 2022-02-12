@@ -65,13 +65,23 @@ class _LoginUIState extends State<LoginUI> {
           ),
         TextField(
           controller: textEditingController,
+          keyboardType: TextInputType.text,
+          inputFormatters: [],
         ),
 
         ElevatedButton(onPressed: login, child: const Text('login')),
+        ElevatedButton(onPressed: getUserInfo, child: const Text('getUserInfo')),
         ElevatedButton(onPressed: logout, child: const Text('logout')),
-        Text('$result', style: TextStyle(
-          color: Colors.red,
-        ),)
+
+        ElevatedButton(onPressed: isCanReserve, child: const Text('isCanReserve')),
+        ElevatedButton(onPressed: getCheckInDate, child: const Text('getCheckInDate')),
+        ElevatedButton(onPressed: getReserveOrderInfo, child: const Text('getReserveOrderInfo')),
+        Text(
+          '$result',
+          style: TextStyle(
+            color: Colors.red,
+          ),
+        )
       ],
     );
 
@@ -149,7 +159,33 @@ class _LoginUIState extends State<LoginUI> {
     print('result: $result');
   }
 
-  logout() {
+  logout() async {}
 
+  getUserInfo() async {
+    var result = await MyClient().api?.getUserInfo().catchError((e) {
+      print('e: $e');
+    });
+    print('result: $result');
+  }
+
+  isCanReserve() async {
+    var result = await MyClient().api?.isCanReserve().catchError((e) {
+      print('e: $e');
+    });
+    print('result: $result');
+  }
+
+  getCheckInDate() async {
+    var result = await MyClient().api?.getCheckInDate().catchError((e) {
+      print('e: $e');
+    });
+    print('result: $result');
+  }
+
+  getReserveOrderInfo() async {
+    var result = await MyClient().api?.getReserveOrderInfo().catchError((e) {
+      print('e: $e');
+    });
+    print('result: $result');
   }
 }

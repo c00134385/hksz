@@ -57,3 +57,44 @@ Map<String, dynamic> _$CertificateToJson(Certificate instance) =>
       'id': instance.id,
       'name': instance.name,
     };
+
+LoginResult _$LoginResultFromJson(Map<String, dynamic> json) {
+  return LoginResult()
+    ..fillStatus = json['fillStatus'] as int?
+    ..redirect_uri = json['redirect_uri'] as String?;
+}
+
+Map<String, dynamic> _$LoginResultToJson(LoginResult instance) =>
+    <String, dynamic>{
+      'fillStatus': instance.fillStatus,
+      'redirect_uri': instance.redirect_uri,
+    };
+
+UserInfo _$UserInfoFromJson(Map<String, dynamic> json) {
+  return UserInfo()
+    ..id = json['id'] as int?
+    ..idCode = json['idCode'] as String?
+    ..mobile = json['mobile'] as String?
+    ..userName = json['userName'] as String?
+    ..nationality = json['nationality'] as String?
+    ..address = json['address'] as String?
+    ..area = json['area'] as String?
+    ..birthday = json['birthday'] == null
+        ? null
+        : DateTime.parse(json['birthday'] as String)
+    ..certNo = json['certNo'] as String?
+    ..certType = json['certType'] as int?;
+}
+
+Map<String, dynamic> _$UserInfoToJson(UserInfo instance) => <String, dynamic>{
+      'id': instance.id,
+      'idCode': instance.idCode,
+      'mobile': instance.mobile,
+      'userName': instance.userName,
+      'nationality': instance.nationality,
+      'address': instance.address,
+      'area': instance.area,
+      'birthday': instance.birthday?.toIso8601String(),
+      'certNo': instance.certNo,
+      'certType': instance.certType,
+    };

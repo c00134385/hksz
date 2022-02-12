@@ -24,13 +24,28 @@ abstract class MyApi {
   Future getVerify(@Path('random') String random);
 
   @POST('/user/login')
-  @FormUrlEncoded()
-  Future<Response> login(
+  Future<Response<LoginResult>> login(
     @Field('certType') int certType,
     @Field('certNo') String certNo,
     @Field('pwd') String pwd,
     @Field('verifyCode') String verifyCode,
   );
+
+  @GET('/user/logout')
+  Future logout();
+
+  @POST('/user/getUserInfo')
+  Future<Response<UserInfo>> getUserInfo();
+
+  @POST('/passInfo/userCenterIsCanReserve')
+  Future<Response<dynamic>> isCanReserve();
+
+  @POST('/orderInfo/getCheckInDate"')
+  Future<Response<dynamic>> getCheckInDate();
+
+  @POST('/passInfo/gerReserveOrderInfo')
+  Future<Response<dynamic>> getReserveOrderInfo();
+
 }
 
 class MyClient {

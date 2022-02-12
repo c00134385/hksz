@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'dart:convert';
 
 part 'models.g.dart';
 
@@ -10,6 +11,11 @@ class TestModel {
 
   factory TestModel.fromJson(Map<String, dynamic> json) => _$TestModelFromJson(json);
   Map<String, dynamic> toJson() => _$TestModelToJson(this);
+
+  @override
+  String toString() {
+    return jsonEncode(toJson());
+  }
 }
 
 @JsonSerializable(genericArgumentFactories: true)
@@ -23,6 +29,11 @@ class Response<T> {
   factory Response.fromJson(Map<String, dynamic> json, T Function(Object? json) fromJsonT) =>
       _$ResponseFromJson<T>(json, fromJsonT);
   Map<String, dynamic> toJson(Object Function(T? value) toJsonT) => _$ResponseToJson(this, toJsonT);
+
+  @override
+  String toString() {
+    return jsonEncode(toJson((value) => value.toString()));
+  }
 }
 
 @JsonSerializable()
@@ -34,4 +45,49 @@ class Certificate {
 
   factory Certificate.fromJson(Map<String, dynamic> json) => _$CertificateFromJson(json);
   Map<String, dynamic> toJson() => _$CertificateToJson(this);
+
+  @override
+  String toString() {
+    return jsonEncode(toJson());
+  }
+}
+
+@JsonSerializable()
+class LoginResult {
+  int? fillStatus;
+  String? redirect_uri;
+
+  LoginResult();
+
+  factory LoginResult.fromJson(Map<String, dynamic> json) => _$LoginResultFromJson(json);
+  Map<String, dynamic> toJson() => _$LoginResultToJson(this);
+
+  @override
+  String toString() {
+    return jsonEncode(toJson());
+  }
+}
+
+@JsonSerializable()
+class UserInfo {
+  int? id;
+  String? idCode;
+  String? mobile;
+  String? userName;
+  String? nationality;
+  String? address;
+  String? area;
+  DateTime? birthday;
+  String? certNo;
+  int? certType;
+
+  UserInfo();
+
+  factory UserInfo.fromJson(Map<String, dynamic> json) => _$UserInfoFromJson(json);
+  Map<String, dynamic> toJson() => _$UserInfoToJson(this);
+
+  @override
+  String toString() {
+    return jsonEncode(toJson());
+  }
 }
