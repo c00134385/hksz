@@ -5,6 +5,7 @@ class TestInterceptor extends Interceptor {
   @override
   Future onRequest(RequestOptions options, RequestInterceptorHandler handler) async {
     print('TestInterceptor onRequest() is called.  url: $options');
+    print('request.headers: ${options.headers}');
     handler.next(options);
   }
   
