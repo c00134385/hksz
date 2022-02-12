@@ -24,6 +24,7 @@ abstract class MyApi {
   Future getVerify(@Path('random') String random);
 
   @POST('/user/login')
+  @FormUrlEncoded()
   Future<Response> login(
     @Field('certType') int certType,
     @Field('certNo') String certNo,
@@ -39,6 +40,7 @@ class MyClient {
     return _singleton;
   }
 
+  Dio? _dio;
   MyApi? api;
 
   MyClient._internal() {
@@ -50,12 +52,25 @@ class MyClient {
     options.connectTimeout = 30 * 1000;
     options.receiveTimeout = 30 * 1000;
 
-    Dio _dio = Dio(options);
+    _dio = Dio(options);
 
     // interceptors
-    _dio.interceptors.add(CookieManager(CookieJar()));
-    _dio.interceptors.add(TestInterceptor());
+    _dio?.interceptors.add(CookieManager(CookieJar()));
+    _dio?.interceptors.add(TestInterceptor());
 
-    api = MyApi(_dio);
+    api = MyApi(_dio!);
   }
+
+  // Future<dynamic> getVerify(random) async {
+  //   const _extra = <String, dynamic>{};
+  //   final queryParameters = <String, dynamic>{};
+  //   final _data = <String, dynamic>{};
+  //   final _result = await _dio.fetch(_setStreamType<dynamic>(
+  //       Options(method: 'GET', headers: <String, dynamic>{}, extra: _extra)
+  //           .compose(_dio.options, '/user/getVerify?$random',
+  //           queryParameters: queryParameters, data: _data)
+  //           .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+  //   final value = _result.data;
+  //   return value;
+  // }
 }
