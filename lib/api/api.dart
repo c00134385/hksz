@@ -78,8 +78,8 @@ class MyClient {
     options.baseUrl = 'https://hk.sz.gov.cn:8118';
     options.headers['content-type'] = 'application/x-www-form-urlencoded';
     // options.headers['timeoffset'] = DateTime.now().timeZoneOffset.inMilliseconds;
-    options.connectTimeout = 30 * 1000;
-    options.receiveTimeout = 30 * 1000;
+    options.connectTimeout = 60 * 1000 * 20;
+    options.receiveTimeout = 60 * 1000 * 20;
 
     _dio = Dio(options);
 

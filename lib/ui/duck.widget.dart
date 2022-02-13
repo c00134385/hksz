@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:hksz/api/api.dart';
+import 'package:hksz/main.dart';
 import 'package:hksz/mixin/mixin.dart';
 import 'package:hksz/model/models.dart';
 import 'package:hksz/utils/utils.dart';
@@ -108,10 +109,9 @@ class _DuckWidgetState extends State<DuckWidget> with TimerTaskStateMixin {
           color: isTimerActive ? Colors.yellow : Colors.grey,
         ),
         Container(
-          color: Colors.yellow,
-          constraints: BoxConstraints(maxHeight: 80),
+          constraints: BoxConstraints(maxHeight: 60),
           child: Text(
-            '$_result',
+            '(${DateTime.now()}) $_result',
             style: const TextStyle(color: Colors.red),
           ),
         ),
@@ -125,7 +125,8 @@ class _DuckWidgetState extends State<DuckWidget> with TimerTaskStateMixin {
       //     Colors.primaries[hashCode % Colors.primaries.length].withOpacity(0.5),
       // constraints: BoxConstraints(maxWidth: 100),
       padding: const EdgeInsets.all(10),
-      decoration: const BoxDecoration(
+      decoration: BoxDecoration(
+        color: _isLogin?Colors.yellow[200]: Colors.transparent,
         border: const Border(
             bottom: const BorderSide(color: Colors.grey, width: 1.0)),
       ),
@@ -135,6 +136,11 @@ class _DuckWidgetState extends State<DuckWidget> with TimerTaskStateMixin {
   }
 
   TextEditingController? textEditingController;
+  MyClient? myClient;
+  String? _result;
+  Uint8List? verifyImage;
+  List<RoomInfo>? rooms = List.empty();
+  bool _isLogin = false;
 
   @override
   void initState() {
@@ -144,11 +150,6 @@ class _DuckWidgetState extends State<DuckWidget> with TimerTaskStateMixin {
     // getCertificateList();
     getVerify();
   }
-
-  MyClient? myClient;
-  String? _result;
-  Uint8List? verifyImage;
-  List<RoomInfo>? rooms = List.empty();
 
   getVerify() async {
     var result = await myClient?.api
@@ -178,7 +179,8 @@ class _DuckWidgetState extends State<DuckWidget> with TimerTaskStateMixin {
 
     if (result?.status == 200) {
       textEditingController?.clear();
-      getVerify();
+      _isLogin = true;
+      // getVerify();
     }
     setState(() {
       print('result: $result');
@@ -207,14 +209,19 @@ class _DuckWidgetState extends State<DuckWidget> with TimerTaskStateMixin {
     });
   }
 
-  isCanReserve() async {
+  Future<bool> isCanReserve() async {
     var result = await myClient?.api?.isCanReserve().catchError((e) {
       print('e: $e');
     });
     setState(() {
-      print('result: $result');
+      // print('result: $result');
       _result = '$result';
     });
+    if (result?.status == 200) {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   getDistrictHouseList() async {
@@ -250,6 +257,7 @@ class _DuckWidgetState extends State<DuckWidget> with TimerTaskStateMixin {
       print('e: $e');
     });
     setState(() {
+      print('userAccount: ${widget.userAccount.certType} / ${widget.userAccount.certNo} / ${widget.userAccount.pwd}');
       print('result: $result');
       // _result = '$result';
     });
@@ -257,16 +265,27 @@ class _DuckWidgetState extends State<DuckWidget> with TimerTaskStateMixin {
 
   @override
   void timerAction() async {
-    var checkInDate = new DateFormat('yyyy-MM-dd')
-        .format(DateTime.now().add(Duration(days: 6)));
-    print('checkinDate: $checkInDate');
+    // var checkInDate = new DateFormat('yyyy-MM-dd')
+    //     .format(DateTime.now().add(Duration(days: 6)));
+    // print('checkinDate: $checkInDate');
 
-    int count = 10;
+    int count = 0;
     while(true) {
-      count --;
-      if(count <= 0) {
-        break;
+      try {
+        var canReserve = await isCanReserve();
+        print('canReserve: $canReserve');
+        if(canReserve) {
+          break;
+        }
+        // if(count++ > 10) {
+        //   break;
+        // }
+      } catch(e) {
+        print('ee: $e');
       }
+    }
+
+    while(true) {
       try {
         var result = await myClient?.api
             ?.getDistrictHouseList()
@@ -276,21 +295,24 @@ class _DuckWidgetState extends State<DuckWidget> with TimerTaskStateMixin {
         print('result:  $result');
         if(null != result && result.status == 200) {
           rooms = result.data;
-          if(rooms?.where((element) => element.count! > 0).length != 0) {
+          if(rooms?.where((element) => element.count! > 0).isNotEmpty??false) {
             break;
           }
         }
       } catch(e) {
         print('ee: $e');
       }
-
-      print('count:  $count');
     }
 
-    rooms?.forEach((element) {
-      if(element.count! > 0) {
-        confirmOrder(element);
-      }
-    });
+    var room = rooms?.lastWhere((element) => element.count! > 0);
+
+    if(null != room) {
+      confirmOrder(room);
+    }
+    // rooms?.forEach((element) {
+    //   if(element.count! > 0) {
+    //     confirmOrder(element);
+    //   }
+    // });
   }
 }
