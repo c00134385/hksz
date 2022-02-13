@@ -41,7 +41,7 @@ dependencies:
   retrofit: any
   logger: any
   dio_http_cache: any
-  pretty_dio_logger: any
+#  pretty_dio_logger: any
 
   extended_image: any
   intl: any

@@ -3,6 +3,8 @@ import 'package:hksz/api/api.dart';
 import 'package:hksz/model/models.dart';
 import 'package:hksz/ui/goose.widget.dart';
 
+import 'duck.widget.dart';
+
 class BatchUI extends StatefulWidget {
   final List<UserAccount> userAccounts;
   const BatchUI({Key? key, required this.userAccounts}) : super(key: key);
@@ -19,7 +21,7 @@ class _BatchUIState extends State<BatchUI> {
 
     child = ListView.builder(itemBuilder: (BuildContext context, int index) {
       UserAccount userAccount = widget.userAccounts[index];
-      return GooseWidget(certNo: userAccount.certNo, pwd: userAccount.pwd, certType: userAccount.certType,);
+      return DuckWidget(userAccount: userAccount);
     }, itemCount: widget.userAccounts.length,);
 
     child = Scaffold(
@@ -34,18 +36,18 @@ class _BatchUIState extends State<BatchUI> {
   @override
   void initState() {
     super.initState();
-    // getCertificateList();
+    getCertificateList();
   }
 
-  // List<Certificate>? certificates;
-  //
-  // getCertificateList() async {
-  //   var result = await MyClient().api?.getCertificateList().catchError((e) {
-  //     print('e: $e');
-  //   });
-  //   print('result: $result');
-  //   setState(() {
-  //     certificates = result?.data;
-  //   });
-  // }
+  List<Certificate>? certificates;
+
+  getCertificateList() async {
+    var result = await MyClient().api?.getCertificateList().catchError((e) {
+      print('e: $e');
+    });
+    print('result: $result');
+    setState(() {
+      certificates = result?.data;
+    });
+  }
 }

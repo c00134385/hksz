@@ -14,20 +14,6 @@ Map<String, dynamic> _$TestModelToJson(TestModel instance) => <String, dynamic>{
       'count': instance.count,
     };
 
-UserAccount _$UserAccountFromJson(Map<String, dynamic> json) {
-  return UserAccount()
-    ..certType = json['certType'] as int?
-    ..certNo = json['certNo'] as String?
-    ..pwd = json['pwd'] as String?;
-}
-
-Map<String, dynamic> _$UserAccountToJson(UserAccount instance) =>
-    <String, dynamic>{
-      'certType': instance.certType,
-      'certNo': instance.certNo,
-      'pwd': instance.pwd,
-    };
-
 Response<T> _$ResponseFromJson<T>(
   Map<String, dynamic> json,
   T Function(Object? json) fromJsonT,

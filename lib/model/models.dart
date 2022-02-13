@@ -18,16 +18,16 @@ class TestModel {
   }
 }
 
-@JsonSerializable()
 class UserAccount {
   int? certType;
   String? certNo;
   String? pwd;
+  Certificate? certificate;
 
-  UserAccount();
+  // UserAccount();
 
-  factory UserAccount.fromJson(Map<String, dynamic> json) => _$UserAccountFromJson(json);
-  Map<String, dynamic> toJson() => _$UserAccountToJson(this);
+  // factory UserAccount.fromJson(Map<String, dynamic> json) => _$UserAccountFromJson(json);
+  // Map<String, dynamic> toJson() => _$UserAccountToJson(this);
 
   UserAccount.fromString(String src) {
     var array = src.split(',');

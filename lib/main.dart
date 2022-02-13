@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:hksz/model/models.dart';
 import 'package:hksz/ui/batch.ui.dart';
+import 'package:hksz/ui/check.ui.dart';
 import 'package:hksz/ui/login.ui.dart';
+import 'package:hksz/ui/order.room.dart';
+import 'package:hksz/ui/quick.order.dart';
 import 'package:http/http.dart' as http;
 
 void main() {
@@ -114,6 +117,18 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: toBatch,
               child: const Text('open batch'),
             ),
+            ElevatedButton(
+              onPressed: toOrder,
+              child: const Text('order room'),
+            ),
+            ElevatedButton(
+              onPressed: quickOrder,
+              child: const Text('quickOrder'),
+            ),
+            ElevatedButton(
+              onPressed: checkIn,
+              child: const Text('check in'),
+            ),
           ],
         ),
       ),
@@ -147,9 +162,42 @@ class _MyHomePageState extends State<MyHomePage> {
     //
     // print(await http.read(Uri.parse('https://example.com/foobar.txt')));
   }
+
+  toOrder() {
+    List<UserAccount> userAccounts = account.map((e) {
+      return UserAccount.fromString(e);
+    }).toList();
+
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+      return OrderRoomUI(userAccount: userAccounts.first);
+    }));
+  }
+
+  quickOrder() {
+    List<UserAccount> userAccounts = account.map((e) {
+      return UserAccount.fromString(e);
+    }).toList();
+
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+      return QuickOrderUI(userAccounts: userAccounts);
+    }));
+  }
+
+  checkIn() {
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+      return CheckUI(accounts: account);
+    }));
+  }
 }
 
 List<String> account = [
-  '4,H004304428,a63061977',
   '4,H09471876,ed521126',
+  '4,H004304428,a63061977',
+  '3,G49480256,c00134385',
 ];
+
+// [{"id":4,"name":"港澳居民來往內地通行證"},
+// {"id":6,"name":"臺灣居民來往大陸通行證"},
+// {"id":2,"name":"往來港澳通行證"},
+// {"id":3,"name":"護照"}
+// ]

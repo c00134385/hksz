@@ -1,61 +1,28 @@
+import 'package:flutter/material.dart';
 import 'dart:math';
 import 'dart:typed_data';
 
 import 'package:extended_image/extended_image.dart';
 import 'package:flutter/material.dart';
 import 'package:hksz/api/api.dart';
+import 'package:hksz/mixin/mixin.dart';
 import 'package:hksz/model/models.dart';
 import 'package:hksz/utils/utils.dart';
 import 'common.widgets.dart';
 import 'package:intl/intl.dart';
 
-// class GooseItem extends StatelessWidget {
-//
-//   final String certNo;
-//   final String pwd;
-//   final List<Certificate>? certificates;
-//   const GooseItem({Key? key, required this.certNo, required this.pwd, required this.certificates}) : super(key: key);
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     Widget child = Container();
-//
-//     child = Column(
-//       mainAxisSize: MainAxisSize.min,
-//       children: [
-//         Text('$certificates'),
-//         PropertyWidget(name: 'certNo', value: certNo,),
-//         PropertyWidget(name: 'pwd', value: pwd,),
-//       ],
-//     );
-//
-//     child = Container(
-//       child: child,
-//       color: Colors.primaries[hashCode%Colors.primaries.length].withOpacity(0.5),
-//       padding: EdgeInsets.all(10),
-//     );
-//
-//     return child;
-//   }
-// }
-
-class GooseWidget extends StatefulWidget {
-  final int? certType;
-  final String? certNo;
-  final String? pwd;
-  final Certificate? certificate;
-  const GooseWidget({
+class DuckWidget extends StatefulWidget {
+  final UserAccount userAccount;
+  const DuckWidget({
     Key? key,
-    required this.certNo,
-    required this.pwd,
-    required this.certType, this.certificate,
+    required this.userAccount,
   }) : super(key: key);
 
   @override
-  _GooseWidgetState createState() => _GooseWidgetState();
+  _DuckWidgetState createState() => _DuckWidgetState();
 }
 
-class _GooseWidgetState extends State<GooseWidget> {
+class _DuckWidgetState extends State<DuckWidget> with TimerTaskStateMixin {
   @override
   Widget build(BuildContext context) {
     Widget child = Container();
@@ -64,29 +31,8 @@ class _GooseWidgetState extends State<GooseWidget> {
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        DropdownButton<Certificate>(
-          value: selectCertificate,
-          onChanged: (value) {
-            print('value: $value');
-            setState(() {
-              selectCertificate = value;
-            });
-          },
-          items: certificates?.map<DropdownMenuItem<Certificate>>((e) {
-            return DropdownMenuItem<Certificate>(
-              child: Text('${e.name}'),
-              value: e,
-            );
-          }).toList(),
-          hint: const Text('select cert type'),
-        ),
-        PropertyWidget(
-          name: 'certNo',
-          value: widget.certNo,
-        ),
-        PropertyWidget(
-          name: 'pwd',
-          value: widget.pwd,
+        AccountItem(
+          account: widget.userAccount,
         ),
         InkWell(
           onTap: getVerify,
@@ -99,7 +45,7 @@ class _GooseWidgetState extends State<GooseWidget> {
                     print('info: ${state.extendedImageInfo}');
                   },
                   height: 80,
-                  width: 280,
+                  // width: 280,
                   fit: BoxFit.fill,
                 )
               : Container(
@@ -124,30 +70,52 @@ class _GooseWidgetState extends State<GooseWidget> {
             ElevatedButton(
                 onPressed: getDistrictHouseList,
                 child: const Text('getDistrictHouseList')),
+            ElevatedButton(
+                onPressed: () {
+                  startTimer();
+                  setState(() {
+                    print('isTimerActive: $isTimerActive');
+                  });
+                },
+                child: const Text('start task')),
+            ElevatedButton(
+                onPressed: () {
+                  cancelTimer();
+                  setState(() {
+                    print('isTimerActive: $isTimerActive');
+                  });
+                }, child: const Text('stop task')),
+
           ],
         ),
-        Column(
-          mainAxisSize: MainAxisSize.min,
-          children: rooms!.map((e) {
-            Widget child = RoomItem(roomInfo: e);
-            child = InkWell(
-              child: child,
-              onTap: () => confirmOrder(e),
-            );
-            child = Padding(
-              child: child,
-              padding: EdgeInsets.only(top: 10),
-            );
-            return child;
-          }).toList(),
+        // Column(
+        //   mainAxisSize: MainAxisSize.min,
+        //   children: rooms!.map((e) {
+        //     Widget child = RoomItem(roomInfo: e);
+        //     child = InkWell(
+        //       child: child,
+        //       onTap: () => confirmOrder(e),
+        //     );
+        //     child = Padding(
+        //       child: child,
+        //       padding: EdgeInsets.only(top: 10),
+        //     );
+        //     return child;
+        //   }).toList(),
+        // ),
+        Icon(
+          isTimerActive ? Icons.lightbulb : Icons.lightbulb_outline_rounded,
+          color: isTimerActive ? Colors.yellow : Colors.grey,
         ),
-        // ListView.builder(itemBuilder: (context, index) {
-        //   return RoomItem(roomInfo: rooms![index]);
-        // }, itemCount: rooms?.length,),
-        Text(
-          '$_result',
-          style: const TextStyle(color: Colors.red),
+        Container(
+          color: Colors.yellow,
+          constraints: BoxConstraints(maxHeight: 80),
+          child: Text(
+            '$_result',
+            style: const TextStyle(color: Colors.red),
+          ),
         ),
+
       ],
     );
 
@@ -177,24 +145,10 @@ class _GooseWidgetState extends State<GooseWidget> {
     getVerify();
   }
 
-  List<Certificate>? certificates;
-  Certificate? selectCertificate;
   MyClient? myClient;
   String? _result;
   Uint8List? verifyImage;
   List<RoomInfo>? rooms = List.empty();
-
-  getCertificateList() async {
-    var result = await myClient?.api?.getCertificateList().catchError((e) {
-      print('e: $e');
-    });
-    print('result: $result');
-    setState(() {
-      certificates = result?.data;
-      selectCertificate =
-          certificates?.firstWhere((element) => element.id == widget.certType);
-    });
-  }
 
   getVerify() async {
     var result = await myClient?.api
@@ -209,11 +163,12 @@ class _GooseWidgetState extends State<GooseWidget> {
   }
 
   login() async {
-    int certType = selectCertificate?.id??10;
-    String certNo = widget.certNo??'';
-    String pwd = widget.pwd??'';
+    int certType = widget.userAccount.certificate?.id ?? 4;
+    String certNo = widget.userAccount.certNo ?? '';
+    String pwd = widget.userAccount.pwd ?? '';
     String verifyCode = textEditingController!.text;
-    print('certType: $certType  certNo: $certNo pwd: $pwd verifyCode: $verifyCode');
+    print(
+        'certType: $certType  certNo: $certNo pwd: $pwd verifyCode: $verifyCode');
     var result = await myClient?.api
         ?.login(certType, Utils.encodeBase64(certNo),
             Utils.encodeBase64(Utils.generateMd5(pwd)), verifyCode)
@@ -221,7 +176,7 @@ class _GooseWidgetState extends State<GooseWidget> {
       print('e: $e');
     });
 
-    if(result?.status == 200) {
+    if (result?.status == 200) {
       textEditingController?.clear();
       getVerify();
     }
@@ -297,6 +252,43 @@ class _GooseWidgetState extends State<GooseWidget> {
     setState(() {
       print('result: $result');
       // _result = '$result';
+    });
+  }
+
+  @override
+  void timerAction() async {
+    var checkInDate = new DateFormat('yyyy-MM-dd')
+        .format(DateTime.now().add(Duration(days: 6)));
+    print('checkinDate: $checkInDate');
+
+    int count = 10;
+    while(true) {
+      count --;
+      if(count <= 0) {
+        break;
+      }
+      try {
+        var result = await myClient?.api
+            ?.getDistrictHouseList()
+            .catchError((e) {
+          print('e: $e');
+        });
+        print('result:  $result');
+        if(null != result && result.status == 200) {
+          rooms = result.data;
+          break;
+        }
+      } catch(e) {
+        print('ee: $e');
+      }
+
+      print('count:  $count');
+    }
+
+    rooms?.forEach((element) {
+      if(element.count! > 0) {
+        confirmOrder(element);
+      }
     });
   }
 }

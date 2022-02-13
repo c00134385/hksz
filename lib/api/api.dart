@@ -1,8 +1,9 @@
 import 'dart:async';
 import 'package:dio/dio.dart' hide Response;
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
+import 'package:hksz/api/pretty.dio.logger.dart';
 import 'package:hksz/model/models.dart';
-import 'package:pretty_dio_logger/pretty_dio_logger.dart';
+// import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:retrofit/retrofit.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:cookie_jar/cookie_jar.dart';
@@ -85,7 +86,7 @@ class MyClient {
     // interceptors
     _dio?.interceptors.add(CookieManager(CookieJar()));
     _dio?.interceptors.add(TestInterceptor());
-    // _dio?.interceptors.add(PrettyDioLogger());
+    _dio?.interceptors.add(PrettyDioLogger(requestHeader: true, requestBody: true, responseBody: true, responseHeader: true));
 
     api = MyApi(_dio!);
     print('myClient: $hashCode');

@@ -43,3 +43,40 @@ class RoomItem extends StatelessWidget {
     return child;
   }
 }
+
+class AccountItem extends StatelessWidget {
+  final UserAccount account;
+
+  const AccountItem({
+    Key? key,
+    required this.account,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    Widget child = Container();
+
+    child = Row(
+      children: [
+        Text('${account.certificate?.name}'),
+        SizedBox(
+          width: 20,
+        ),
+        Expanded(
+          child: Text('${account.certType} / ${account.certNo} / ${account.pwd}'),
+          flex: 1,
+        ),
+        // Expanded(
+        //   child: Text('${account.certNo}'),
+        //   flex: 2,
+        // ),
+        // Expanded(
+        //   child: Text('${account.pwd}'),
+        //   flex: 2,
+        // ),
+      ],
+    );
+
+    return child;
+  }
+}
