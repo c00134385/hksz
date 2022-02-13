@@ -277,9 +277,9 @@ class _DuckWidgetState extends State<DuckWidget> with TimerTaskStateMixin {
         if(canReserve) {
           break;
         }
-        // if(count++ > 10) {
-        //   break;
-        // }
+        if(count++ > 200) {
+          break;
+        }
       } catch(e) {
         print('ee: $e');
       }

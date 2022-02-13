@@ -72,8 +72,21 @@ class _CheckUIState extends State<CheckUI> {
         child: child,
         padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
         decoration: BoxDecoration(
+          color: checkedUserAccounts.contains(userAccount)?Colors.yellow[200]: Colors.transparent,
           border: Border(bottom: BorderSide(color: Colors.grey)),
         ),
+      );
+      child = InkWell(
+        child: child,
+        onTap: () {
+          setState(() {
+            if(checkedUserAccounts.contains(userAccount)) {
+              checkedUserAccounts.remove(userAccount);
+            } else {
+              checkedUserAccounts.add(userAccount);
+            }
+          });
+        },
       );
       return child;
     }).toList();
@@ -89,10 +102,15 @@ class _CheckUIState extends State<CheckUI> {
     userAccounts = widget.accounts.map((e) {
       return UserAccount.fromString(e);
     }).toList();
+    userAccounts?.forEach((element) {
+      checkedUserAccounts.add(element);
+    });
+
     getCertificateList();
   }
 
   List<UserAccount>? userAccounts;
+  List<UserAccount> checkedUserAccounts = List.empty(growable: true);
   List<Certificate>? certificates;
 
   getCertificateList() async {
@@ -110,7 +128,7 @@ class _CheckUIState extends State<CheckUI> {
       return;
     }
     Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-      return BatchUI(userAccounts: userAccounts!,);
+      return BatchUI(userAccounts: checkedUserAccounts,);
     }));
   }
 }
