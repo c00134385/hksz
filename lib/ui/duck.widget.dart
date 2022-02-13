@@ -276,7 +276,9 @@ class _DuckWidgetState extends State<DuckWidget> with TimerTaskStateMixin {
         print('result:  $result');
         if(null != result && result.status == 200) {
           rooms = result.data;
-          break;
+          if(rooms?.where((element) => element.count! > 0).length != 0) {
+            break;
+          }
         }
       } catch(e) {
         print('ee: $e');
