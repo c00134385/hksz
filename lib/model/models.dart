@@ -18,6 +18,25 @@ class TestModel {
   }
 }
 
+@JsonSerializable()
+class UserAccount {
+  int? certType;
+  String? certNo;
+  String? pwd;
+
+  UserAccount();
+
+  factory UserAccount.fromJson(Map<String, dynamic> json) => _$UserAccountFromJson(json);
+  Map<String, dynamic> toJson() => _$UserAccountToJson(this);
+
+  UserAccount.fromString(String src) {
+    var array = src.split(',');
+    certType = int.tryParse(array[0]);
+    certNo = array[1].trim();
+    pwd = array[2].trim();
+  }
+}
+
 @JsonSerializable(genericArgumentFactories: true)
 class Response<T> {
   int? status;
@@ -66,6 +85,21 @@ class LoginResult {
   String toString() {
     return jsonEncode(toJson());
   }
+}
+
+@JsonSerializable()
+class RoomInfo {
+  int? id;
+  DateTime? date;
+  int? count;
+  int? total;
+  int? timespan;
+  String? sign;
+
+  RoomInfo();
+
+  factory RoomInfo.fromJson(Map<String, dynamic> json) => _$RoomInfoFromJson(json);
+  Map<String, dynamic> toJson() => _$RoomInfoToJson(this);
 }
 
 @JsonSerializable()

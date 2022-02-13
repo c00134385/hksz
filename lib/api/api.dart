@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:dio/dio.dart' hide Response;
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:hksz/model/models.dart';
+import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:retrofit/retrofit.dart';
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:cookie_jar/cookie_jar.dart';
@@ -18,7 +19,7 @@ abstract class MyApi {
   Future<Response> test();
 
   @POST('/nationality/getCertificateList')
-  Future<Response<List<Certificate>>> getCertificateList();
+  Future<Response<List<Certificate>?>> getCertificateList();
 
   @GET('/user/getVerify?{random}')
   Future getVerify(@Path('random') String random);
@@ -46,13 +47,25 @@ abstract class MyApi {
   @POST('/passInfo/gerReserveOrderInfo')
   Future<Response<dynamic>> getReserveOrderInfo();
 
+  @POST('/districtHousenumLog/getList')
+  Future<Response<List<RoomInfo>>> getDistrictHouseList({
+    @Field('checkinDate') String? checkinDate, //"yyyy-MM-dd"
+  });
+
+  @GET('/passInfo/confirmOrder')
+  Future confirmOrder({
+    @Query('checkinDate') String? checkinDate,
+    @Query('t') int? timespan,
+    @Query('s') String? sign,
+  });
 }
 
 class MyClient {
   static final MyClient _singleton = MyClient._internal();
 
   factory MyClient() {
-    return _singleton;
+    // return _singleton;
+    return MyClient._internal();
   }
 
   Dio? _dio;
@@ -72,8 +85,10 @@ class MyClient {
     // interceptors
     _dio?.interceptors.add(CookieManager(CookieJar()));
     _dio?.interceptors.add(TestInterceptor());
+    // _dio?.interceptors.add(PrettyDioLogger());
 
     api = MyApi(_dio!);
+    print('myClient: $hashCode');
   }
 
   // Future<dynamic> getVerify(random) async {

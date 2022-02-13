@@ -32,7 +32,7 @@ class _MyApi implements MyApi {
   }
 
   @override
-  Future<Response<List<Certificate>>> getCertificateList() async {
+  Future<Response<List<Certificate>?>> getCertificateList() async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};
     final _data = <String, dynamic>{};
@@ -171,6 +171,46 @@ class _MyApi implements MyApi {
       _result.data!,
       (json) => json as dynamic,
     );
+    return value;
+  }
+
+  @override
+  Future<Response<List<RoomInfo>>> getDistrictHouseList({checkinDate}) async {
+    const _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    queryParameters.removeWhere((k, v) => v == null);
+    final _data = {'checkinDate': checkinDate};
+    _data.removeWhere((k, v) => v == null);
+    final _result = await _dio.fetch<Map<String, dynamic>>(
+        _setStreamType<Response<List<RoomInfo>>>(
+            Options(method: 'POST', headers: <String, dynamic>{}, extra: _extra)
+                .compose(_dio.options, '/districtHousenumLog/getList',
+                    queryParameters: queryParameters, data: _data)
+                .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+    final value = Response<List<RoomInfo>>.fromJson(
+        _result.data!,
+        (json) => (json as List<dynamic>)
+            .map<RoomInfo>((i) => RoomInfo.fromJson(i as Map<String, dynamic>))
+            .toList());
+    return value;
+  }
+
+  @override
+  Future<dynamic> confirmOrder({checkinDate, timespan, sign}) async {
+    const _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{
+      r'checkinDate': checkinDate,
+      r't': timespan,
+      r's': sign
+    };
+    queryParameters.removeWhere((k, v) => v == null);
+    final _data = <String, dynamic>{};
+    final _result = await _dio.fetch(_setStreamType<dynamic>(
+        Options(method: 'GET', headers: <String, dynamic>{}, extra: _extra)
+            .compose(_dio.options, '/passInfo/confirmOrder',
+                queryParameters: queryParameters, data: _data)
+            .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+    final value = _result.data;
     return value;
   }
 

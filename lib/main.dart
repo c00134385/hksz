@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:hksz/model/models.dart';
+import 'package:hksz/ui/batch.ui.dart';
 import 'package:hksz/ui/login.ui.dart';
+import 'package:http/http.dart' as http;
 
 void main() {
   runApp(const MyApp());
@@ -107,6 +110,10 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: toLogin,
               child: const Text('Login'),
             ),
+            ElevatedButton(
+              onPressed: toBatch,
+              child: const Text('open batch'),
+            ),
           ],
         ),
       ),
@@ -123,4 +130,26 @@ class _MyHomePageState extends State<MyHomePage> {
       return const LoginUI();
     }));
   }
+
+  toBatch() async {
+    List<UserAccount> userAccounts = account.map((e) {
+      return UserAccount.fromString(e);
+    }).toList();
+
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+      return BatchUI(userAccounts: userAccounts,);
+    }));
+
+    // var url = Uri.parse('https://example.com/whatsit/create');
+    // var response = await http.post(url, body: {'name': 'doodle', 'color': 'blue'});
+    // print('Response status: ${response.statusCode}');
+    // print('Response body: ${response.body}');
+    //
+    // print(await http.read(Uri.parse('https://example.com/foobar.txt')));
+  }
 }
+
+List<String> account = [
+  '4,H004304428,a63061977',
+  '4,H09471876,ed521126',
+];

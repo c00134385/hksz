@@ -44,6 +44,7 @@ dependencies:
   pretty_dio_logger: any
 
   extended_image: any
+  intl: any
 
 dev_dependencies:
   flutter_test:

@@ -23,6 +23,7 @@ class TestInterceptor extends Interceptor {
       throw DioError(requestOptions: response.requestOptions, error: response.data);
     }
 
+    print('response.headers: ${response.headers}');
     print('response.headers:');
     response.headers.map.forEach((key, value) {
       print('  $key: $value');

@@ -14,6 +14,20 @@ Map<String, dynamic> _$TestModelToJson(TestModel instance) => <String, dynamic>{
       'count': instance.count,
     };
 
+UserAccount _$UserAccountFromJson(Map<String, dynamic> json) {
+  return UserAccount()
+    ..certType = json['certType'] as int?
+    ..certNo = json['certNo'] as String?
+    ..pwd = json['pwd'] as String?;
+}
+
+Map<String, dynamic> _$UserAccountToJson(UserAccount instance) =>
+    <String, dynamic>{
+      'certType': instance.certType,
+      'certNo': instance.certNo,
+      'pwd': instance.pwd,
+    };
+
 Response<T> _$ResponseFromJson<T>(
   Map<String, dynamic> json,
   T Function(Object? json) fromJsonT,
@@ -68,6 +82,26 @@ Map<String, dynamic> _$LoginResultToJson(LoginResult instance) =>
     <String, dynamic>{
       'fillStatus': instance.fillStatus,
       'redirect_uri': instance.redirect_uri,
+    };
+
+RoomInfo _$RoomInfoFromJson(Map<String, dynamic> json) {
+  return RoomInfo()
+    ..id = json['id'] as int?
+    ..date =
+        json['date'] == null ? null : DateTime.parse(json['date'] as String)
+    ..count = json['count'] as int?
+    ..total = json['total'] as int?
+    ..timespan = json['timespan'] as int?
+    ..sign = json['sign'] as String?;
+}
+
+Map<String, dynamic> _$RoomInfoToJson(RoomInfo instance) => <String, dynamic>{
+      'id': instance.id,
+      'date': instance.date?.toIso8601String(),
+      'count': instance.count,
+      'total': instance.total,
+      'timespan': instance.timespan,
+      'sign': instance.sign,
     };
 
 UserInfo _$UserInfoFromJson(Map<String, dynamic> json) {
