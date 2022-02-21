@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:ffi';
 import 'dart:io';
 import 'dart:math';
@@ -9,6 +10,7 @@ import 'package:hksz/ui/widgets.dart';
 import 'package:hksz/utils/utils.dart';
 import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:html/parser.dart';
 
 class GrabUI extends StatefulWidget {
   final List<UserAccount> userAccounts;
@@ -109,7 +111,8 @@ class WorkBodyUI extends StatefulWidget {
   _WorkBodyUIState createState() => _WorkBodyUIState();
 }
 
-class _WorkBodyUIState extends State<WorkBodyUI> with AutomaticKeepAliveClientMixin{
+class _WorkBodyUIState extends State<WorkBodyUI>
+    with AutomaticKeepAliveClientMixin {
   MyClient? myClient;
   String? result;
   String? verifyCodeFile;
@@ -239,7 +242,7 @@ class _WorkBodyUIState extends State<WorkBodyUI> with AutomaticKeepAliveClientMi
                 child: const Text('Hack2'),
               ),
               ElevatedButton(
-                onPressed: _getCheckIn,
+                onPressed: _test,
                 child: const Text('Get CheckIn'),
               ),
               ElevatedButton(
@@ -261,7 +264,8 @@ class _WorkBodyUIState extends State<WorkBodyUI> with AutomaticKeepAliveClientMi
                 children: [
                   Row(
                     children: [
-                      Text('${new DateFormat('yyyy-MM-dd').format(room.date!)}'),
+                      Text(
+                          '${new DateFormat('yyyy-MM-dd').format(room.date!)}'),
                       Spacer(),
                       Text('${room.count}/${room.total}'),
                       Spacer(),
@@ -347,15 +351,21 @@ class _WorkBodyUIState extends State<WorkBodyUI> with AutomaticKeepAliveClientMi
   }
 
   _getRooms() async {
-    showLoading();
-    var ret = await myClient?.api?.getDistrictHouseList().catchError((e) {
-      print('e: $e');
-      result = '$e';
+    Timer.periodic(Duration(seconds: 3), (timer) async {
+      if (DateTime.now().isAfter(DateTime(DateTime.now().year,
+          DateTime.now().month, DateTime.now().day, 9, 59, 45))) {
+        timer.cancel();
+      }
+      showLoading();
+      var ret = await myClient?.api?.getDistrictHouseList().catchError((e) {
+        print('e: $e');
+        result = '$e';
+        hideLoading();
+      });
+      roomInfoList = ret?.data!;
+      result = ret.toString();
       hideLoading();
     });
-    roomInfoList = ret?.data!;
-    result = ret.toString();
-    hideLoading();
   }
 
   _canBeReserved() async {
@@ -369,9 +379,97 @@ class _WorkBodyUIState extends State<WorkBodyUI> with AutomaticKeepAliveClientMi
     hideLoading();
   }
 
-  _hack1() {}
+  List<TimerTask> hackTaskList1 = List.empty(growable: true);
+  List<TimerTask> hackTaskList2 = List.empty(growable: true);
 
-  _hack2() {}
+  _hack1() {
+    while (true) {
+      if (hackTaskList1.length > 100) {
+        break;
+      }
+      hackTaskList1.add(TimerTask(timerAction: () async {
+        RoomInfo? room = roomInfoList?.last;
+        if (null != room) {
+          var ret = await api
+              ?.confirmOrder(
+                  checkinDate: DateFormat('yyyy-MM-dd').format(room.date!),
+                  timespan: room.timespan,
+                  sign: room.sign)
+              .catchError((e) {
+            print('e: $e');
+            result = '$e';
+            return;
+          });
+
+          result = ret.toString();
+          var document = parse(result);
+          // document.getElementById('hid')
+
+          ret = await api
+              ?.submitReservation(
+                  checkinDate: DateFormat('yyyy-MM-dd').format(room.date!),
+                  timeSpan: room.timespan,
+                  sign: room.sign,
+                  checkCode: verifyCodeController?.text,
+                  houseType: 1)
+              .catchError((e) {
+            print('e: $e');
+            result = '$e';
+            return;
+          });
+
+          result = ret.toString();
+        }
+      }));
+    }
+  }
+
+  _hack2() {
+    while (true) {
+      if (hackTaskList2.length > 100) {
+        break;
+      }
+      hackTaskList2.add(TimerTask(timerAction: () async {
+        RoomInfo? room = roomInfoList?.last;
+        if (null != room) {
+          var ret = await api
+              ?.submitReservation(
+                  checkinDate: DateFormat('yyyy-MM-dd').format(room.date!),
+                  timeSpan: room.timespan,
+                  sign: room.sign,
+                  checkCode: verifyCodeController?.text,
+                  houseType: 1)
+              .catchError((e) {
+            print('e: $e');
+            result = '$e';
+            return;
+          });
+
+          result = ret.toString();
+        }
+      }));
+    }
+  }
+
+  _test() async {
+    RoomInfo? room = roomInfoList?.last;
+    if (null != room) {
+      var ret = await api
+          ?.confirmOrder(
+              checkinDate: DateFormat('yyyy-MM-dd').format(room.date!),
+              timespan: room.timespan,
+              sign: room.sign)
+          .catchError((e) {
+        print('e: $e');
+        result = '$e';
+        return;
+      });
+      result = ret.toString();
+
+      var document = parse(result);
+      // document.getElementById('hid')
+    }
+  }
 
   _getCheckIn() async {
     showLoading();
@@ -412,4 +510,44 @@ class _WorkBodyUIState extends State<WorkBodyUI> with AutomaticKeepAliveClientMi
   @override
   // TODO: implement wantKeepAlive
   bool get wantKeepAlive => true;
+}
+
+typedef TimerAction = void Function();
+
+class TimerTask {
+  Timer? _timer;
+  final TimerAction timerAction;
+
+  TimerTask({required this.timerAction}) {
+    _startTimer();
+  }
+
+  @override
+  void dispose() {
+    _cancelTimer();
+  }
+
+  bool get isTimerActive => _timer?.isActive ?? false;
+
+  _startTimer() {
+    _cancelTimer();
+    var beginTime = DateTime(
+      DateTime.now().year,
+      DateTime.now().month,
+      DateTime.now().day,
+      10,
+    );
+    // beginTime = beginTime.subtract(Duration(milliseconds: 10));
+    // print('duration: $beginTime ${beginTime.subtract(Duration(milliseconds: 1000))}');
+    var duration = beginTime.difference(DateTime.now());
+    print('duration: $duration');
+    _timer = Timer(duration, () {
+      timerAction();
+    });
+  }
+
+  _cancelTimer() {
+    _timer?.cancel();
+    _timer = null;
+  }
 }
