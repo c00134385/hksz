@@ -32,12 +32,12 @@ class RoomItem extends StatelessWidget {
     child = Column(
       mainAxisSize: MainAxisSize.min,
       children: [
-        PropertyWidget(name: 'id', value: roomInfo.id),
+        // PropertyWidget(name: 'id', value: roomInfo.id),
         PropertyWidget(
             name: 'count', value: '${roomInfo.count}/${roomInfo.total}'),
         PropertyWidget(name: 'date', value: roomInfo.date),
-        PropertyWidget(name: 'sign', value: roomInfo.sign),
-        PropertyWidget(name: 'timespan', value: roomInfo.timespan),
+        // PropertyWidget(name: 'sign', value: roomInfo.sign),
+        // PropertyWidget(name: 'timespan', value: roomInfo.timespan),
       ],
     );
     return child;

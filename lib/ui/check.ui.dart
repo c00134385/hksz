@@ -4,6 +4,7 @@ import 'package:hksz/model/models.dart';
 
 import 'batch.ui.dart';
 import 'common.widgets.dart';
+import 'grab.ui.dart';
 
 class CheckUI extends StatefulWidget {
   final List<String> accounts;
@@ -18,35 +19,9 @@ class _CheckUIState extends State<CheckUI> {
   Widget build(BuildContext context) {
     Widget child = Container();
 
-    // child = ListView.builder(
-    //   itemBuilder: (context, index) {
-    //     UserAccount userAccount = userAccounts![index];
-    //     userAccount.certificate = certificates
-    //         ?.firstWhere((element) => element.id == userAccount.certType);
-    //     Widget child = AccountItem(
-    //       account: userAccount,
-    //     );
-    //     child = Container(
-    //       child: child,
-    //       padding: EdgeInsets.symmetric(vertical: 10, horizontal: 10),
-    //       decoration: BoxDecoration(
-    //         border: Border(bottom: BorderSide(color: Colors.grey)),
-    //       ),
-    //     );
-    //     return child;
-    //   },
-    //   itemCount: widget.accounts.length,
-    // );
-
     child = ListView(
       children: _buildChildren(),
     );
-
-    // child = Column(
-    //   children: [
-    //     Expanded(child: child),
-    //   ],
-    // );
 
     child = Scaffold(
       appBar: AppBar(
@@ -90,9 +65,17 @@ class _CheckUIState extends State<CheckUI> {
       );
       return child;
     }).toList();
+
     children.add(
-      ElevatedButton(onPressed: toBatch, child: Text('next')),
+      Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: [
+          ElevatedButton(onPressed: getCertificateList, child: Text('refresh')),
+          ElevatedButton(onPressed: _next, child: Text('next')),
+        ],
+      )
     );
+
     return children;
   }
 
@@ -121,6 +104,15 @@ class _CheckUIState extends State<CheckUI> {
     setState(() {
       certificates = result?.data;
     });
+  }
+
+  _next() {
+    if(null == userAccounts) {
+      return;
+    }
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+      return GrabUI(userAccounts: checkedUserAccounts,);
+    }));
   }
 
   toBatch() {

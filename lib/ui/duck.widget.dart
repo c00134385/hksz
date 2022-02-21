@@ -35,42 +35,50 @@ class _DuckWidgetState extends State<DuckWidget> with TimerTaskStateMixin {
         AccountItem(
           account: widget.userAccount,
         ),
-        InkWell(
-          onTap: getVerify,
-          child: (null != verifyImage)
-              ? ExtendedImage.memory(
-                  verifyImage!,
-                  loadStateChanged: (ExtendedImageState state) {
-                    // print('state: $state');
-                    print('loadState: ${state.extendedImageLoadState}');
-                    print('info: ${state.extendedImageInfo}');
-                  },
-                  height: 80,
-                  // width: 280,
-                  fit: BoxFit.fill,
-                )
-              : Container(
-                  height: 50,
+        Row(
+          children: [
+            Expanded(
+              flex: 3,
+              child: InkWell(
+                onTap: getVerify,
+                child: (null != verifyImage)
+                    ? ExtendedImage.memory(
+                        verifyImage!,
+                        loadStateChanged: (ExtendedImageState state) {
+                          // print('state: $state');
+                          print('loadState: ${state.extendedImageLoadState}');
+                          print('info: ${state.extendedImageInfo}');
+                        },
+                        height: 50,
+                        // width: 280,
+                        fit: BoxFit.contain,
+                      )
+                    : Container(
+                        height: 50,
+                      ),
+              ),
+            ),
+            // SizedBox(width: 10),
+            Expanded(
+              flex: 1,
+              child: Container(
+                width: 150,
+                child: TextField(
+                  controller: textEditingController,
+                  keyboardType: TextInputType.text,
                 ),
+              ),
+            ),
+          ],
         ),
-        Container(
-          width: 150,
-          child: TextField(
-            controller: textEditingController,
-            keyboardType: TextInputType.text,
-          ),
-        ),
+
         Wrap(
           children: [
             ElevatedButton(onPressed: login, child: const Text('login')),
             ElevatedButton(onPressed: logout, child: const Text('logout')),
-            ElevatedButton(
-                onPressed: getUserInfo, child: const Text('getUserInfo')),
-            ElevatedButton(
-                onPressed: isCanReserve, child: const Text('isCanReserve')),
-            ElevatedButton(
-                onPressed: getDistrictHouseList,
-                child: const Text('getDistrictHouseList')),
+            ElevatedButton(onPressed: getUserInfo, child: const Text('getUserInfo')),
+            ElevatedButton(onPressed: isCanReserve, child: const Text('isCanReserve')),
+            ElevatedButton(onPressed: getDistrictHouseList, child: const Text('getDistrictHouseList')),
             ElevatedButton(
                 onPressed: () {
                   startTimer();
@@ -85,25 +93,25 @@ class _DuckWidgetState extends State<DuckWidget> with TimerTaskStateMixin {
                   setState(() {
                     print('isTimerActive: $isTimerActive');
                   });
-                }, child: const Text('stop task')),
-
+                },
+                child: const Text('stop task')),
           ],
         ),
-        // Column(
-        //   mainAxisSize: MainAxisSize.min,
-        //   children: rooms!.map((e) {
-        //     Widget child = RoomItem(roomInfo: e);
-        //     child = InkWell(
-        //       child: child,
-        //       onTap: () => confirmOrder(e),
-        //     );
-        //     child = Padding(
-        //       child: child,
-        //       padding: EdgeInsets.only(top: 10),
-        //     );
-        //     return child;
-        //   }).toList(),
-        // ),
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: rooms.map((e) {
+            Widget child = RoomItem(roomInfo: e);
+            child = InkWell(
+              child: child,
+              onTap: () => confirmOrder(e),
+            );
+            child = Padding(
+              child: child,
+              padding: EdgeInsets.only(top: 10),
+            );
+            return child;
+          }).toList(),
+        ),
         Icon(
           isTimerActive ? Icons.lightbulb : Icons.lightbulb_outline_rounded,
           color: isTimerActive ? Colors.yellow : Colors.grey,
@@ -115,7 +123,6 @@ class _DuckWidgetState extends State<DuckWidget> with TimerTaskStateMixin {
             style: const TextStyle(color: Colors.red),
           ),
         ),
-
       ],
     );
 
@@ -126,9 +133,8 @@ class _DuckWidgetState extends State<DuckWidget> with TimerTaskStateMixin {
       // constraints: BoxConstraints(maxWidth: 100),
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
-        color: _isLogin?Colors.yellow[200]: Colors.transparent,
-        border: const Border(
-            bottom: const BorderSide(color: Colors.grey, width: 1.0)),
+        color: _isLogin ? Colors.yellow[200] : Colors.transparent,
+        border: const Border(bottom: const BorderSide(color: Colors.grey, width: 1.0)),
       ),
     );
 
@@ -139,7 +145,7 @@ class _DuckWidgetState extends State<DuckWidget> with TimerTaskStateMixin {
   MyClient? myClient;
   String? _result;
   Uint8List? verifyImage;
-  List<RoomInfo>? rooms = List.empty();
+  List<RoomInfo> rooms = List.empty();
   bool _isLogin = false;
 
   @override
@@ -152,9 +158,7 @@ class _DuckWidgetState extends State<DuckWidget> with TimerTaskStateMixin {
   }
 
   getVerify() async {
-    var result = await myClient?.api
-        ?.getVerify('${Random().nextDouble()}')
-        .catchError((e) {
+    var result = await myClient?.api?.getVerify('${Random().nextDouble()}').catchError((e) {
       print('e: $e');
     });
 
@@ -168,17 +172,15 @@ class _DuckWidgetState extends State<DuckWidget> with TimerTaskStateMixin {
     String certNo = widget.userAccount.certNo ?? '';
     String pwd = widget.userAccount.pwd ?? '';
     String verifyCode = textEditingController!.text;
-    print(
-        'certType: $certType  certNo: $certNo pwd: $pwd verifyCode: $verifyCode');
+    print('certType: $certType  certNo: $certNo pwd: $pwd verifyCode: $verifyCode');
     var result = await myClient?.api
-        ?.login(certType, Utils.encodeBase64(certNo),
-            Utils.encodeBase64(Utils.generateMd5(pwd)), verifyCode)
+        ?.login(certType, Utils.encodeBase64(certNo), Utils.encodeBase64(Utils.generateMd5(pwd)), verifyCode)
         .catchError((e) {
       print('e: $e');
     });
 
+    textEditingController?.clear();
     if (result?.status == 200) {
-      textEditingController?.clear();
       _isLogin = true;
       // getVerify();
     }
@@ -193,9 +195,10 @@ class _DuckWidgetState extends State<DuckWidget> with TimerTaskStateMixin {
       print('e: $e');
       _result = e;
     });
+    _isLogin = false;
     setState(() {
+      _result = '$result';
       print('result: $result');
-      // _result = '$result';
     });
   }
 
@@ -225,13 +228,10 @@ class _DuckWidgetState extends State<DuckWidget> with TimerTaskStateMixin {
   }
 
   getDistrictHouseList() async {
-    var checkInDate = new DateFormat('yyyy-MM-dd')
-        .format(DateTime.now().add(Duration(days: 6)));
+    var checkInDate = new DateFormat('yyyy-MM-dd').format(DateTime.now().add(Duration(days: 6)));
     print('checkinDate: $checkInDate');
 
-    var result = await myClient?.api
-        ?.getDistrictHouseList(checkinDate: checkInDate)
-        .catchError((e) {
+    var result = await myClient?.api?.getDistrictHouseList(checkinDate: checkInDate).catchError((e) {
       print('e: $e');
     });
     setState(() {
@@ -240,7 +240,10 @@ class _DuckWidgetState extends State<DuckWidget> with TimerTaskStateMixin {
         print('roomInfo: ${element.toJson()}');
       });
       _result = '$result';
-      rooms = result?.data;
+      if(null != result?.data) {
+        rooms = result!.data!;
+      }
+
     });
   }
 
@@ -249,10 +252,7 @@ class _DuckWidgetState extends State<DuckWidget> with TimerTaskStateMixin {
     var checkInDate = new DateFormat('yyyy-MM-dd').format(roomInfo.date!);
     print('checkinDate: $checkInDate');
     var result = await myClient?.api
-        ?.confirmOrder(
-            checkinDate: checkInDate,
-            timespan: roomInfo.timespan,
-            sign: roomInfo.sign)
+        ?.confirmOrder(checkinDate: checkInDate, timespan: roomInfo.timespan, sign: roomInfo.sign)
         .catchError((e) {
       print('e: $e');
     });
@@ -269,45 +269,46 @@ class _DuckWidgetState extends State<DuckWidget> with TimerTaskStateMixin {
     //     .format(DateTime.now().add(Duration(days: 6)));
     // print('checkinDate: $checkInDate');
 
-    int count = 0;
-    while(true) {
-      try {
-        var canReserve = await isCanReserve();
-        print('canReserve: $canReserve');
-        if(canReserve) {
-          break;
-        }
-        if(count++ > 200) {
-          break;
-        }
-      } catch(e) {
-        print('ee: $e');
-      }
-    }
+    // int count = 0;
+    // while (true) {
+    //   try {
+    //     var canReserve = await isCanReserve();
+    //     print('canReserve: $canReserve');
+    //     if (canReserve) {
+    //       break;
+    //     }
+    //     if (count++ > 200) {
+    //       break;
+    //     }
+    //   } catch (e) {
+    //     print('ee: $e');
+    //   }
+    //   await Future.delayed(Duration(milliseconds: 10));
+    // }
 
-    while(true) {
+    while (true) {
       try {
-        var result = await myClient?.api
-            ?.getDistrictHouseList()
-            .catchError((e) {
+        var result = await myClient?.api?.getDistrictHouseList().catchError((e) {
           print('e: $e');
         });
         print('result:  $result');
-        if(null != result && result.status == 200) {
-          rooms = result.data;
-          if(rooms?.where((element) => element.count! > 0).isNotEmpty??false) {
-            break;
-          }
+        if (null != result && result.status == 200 && null != result.data) {
+          rooms = result.data!;
+          break;
+          // if(rooms?.where((element) => element.count! > 0).isNotEmpty??false) {
+          //   break;
+          // }
         }
-      } catch(e) {
+      } catch (e) {
         print('ee: $e');
       }
     }
 
-    var room = rooms?.lastWhere((element) => element.count! > 0);
-
-    if(null != room) {
-      confirmOrder(room);
+    print('roomes: ${rooms.length}');
+    // var room = rooms?.lastWhere((element) => element.count! > 0);
+    var availableRooms = rooms.where((element) => element.count! > 0);
+    if (availableRooms.isNotEmpty) {
+      confirmOrder(availableRooms.last);
     }
     // rooms?.forEach((element) {
     //   if(element.count! > 0) {

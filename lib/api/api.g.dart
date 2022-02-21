@@ -32,6 +32,20 @@ class _MyApi implements MyApi {
   }
 
   @override
+  Future<dynamic> index() async {
+    const _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _data = <String, dynamic>{};
+    final _result = await _dio.fetch(_setStreamType<dynamic>(
+        Options(method: 'GET', headers: <String, dynamic>{}, extra: _extra)
+            .compose(_dio.options, '/',
+                queryParameters: queryParameters, data: _data)
+            .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+    final value = _result.data;
+    return value;
+  }
+
+  @override
   Future<Response<List<Certificate>?>> getCertificateList() async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{};

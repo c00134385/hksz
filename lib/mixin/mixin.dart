@@ -29,9 +29,9 @@ mixin TimerTaskStateMixin<T extends StatefulWidget> on State<T> {
     //   countValue--;
     //   print('TimerTaskStateMixin($hashCode) : $countValue');
     // });
-    var deadline = DateTime(2022, 2, 14, 10,);
+    var deadline = DateTime(2022, 2, 15, 10,);
     var duration = deadline.difference(DateTime.now());
-    duration = Duration(seconds: 5);
+    // duration = Duration(seconds: 5);
     print('duration: $duration');
     _timer = Timer(duration, () {
       // var now = DateTime.now();

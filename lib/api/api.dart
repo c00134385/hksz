@@ -19,6 +19,9 @@ abstract class MyApi {
   @GET('/test')
   Future<Response> test();
 
+  @GET("/")
+  Future index();
+
   @POST('/nationality/getCertificateList')
   Future<Response<List<Certificate>?>> getCertificateList();
 
@@ -77,6 +80,7 @@ class MyClient {
 
     options.baseUrl = 'https://hk.sz.gov.cn:8118';
     options.headers['content-type'] = 'application/x-www-form-urlencoded';
+    options.headers['Connection'] = 'keep-alive';
     // options.headers['timeoffset'] = DateTime.now().timeZoneOffset.inMilliseconds;
     options.connectTimeout = 60 * 1000 * 20;
     options.receiveTimeout = 60 * 1000 * 20;
@@ -86,7 +90,12 @@ class MyClient {
     // interceptors
     _dio?.interceptors.add(CookieManager(CookieJar()));
     _dio?.interceptors.add(TestInterceptor());
-    _dio?.interceptors.add(PrettyDioLogger(requestHeader: true, requestBody: true, responseBody: true, responseHeader: true));
+    _dio?.interceptors.add(PrettyDioLogger(
+      requestHeader: true,
+      requestBody: true,
+      responseHeader: true,
+      responseBody: true,
+    ));
 
     api = MyApi(_dio!);
     print('myClient: $hashCode');

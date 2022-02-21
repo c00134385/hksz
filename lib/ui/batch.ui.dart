@@ -19,10 +19,23 @@ class _BatchUIState extends State<BatchUI> {
   Widget build(BuildContext context) {
     Widget child = Container();
 
-    child = ListView.builder(itemBuilder: (BuildContext context, int index) {
-      UserAccount userAccount = widget.userAccounts[index];
-      return DuckWidget(userAccount: userAccount);
-    }, itemCount: widget.userAccounts.length,);
+    // child = ListView.builder(itemBuilder: (BuildContext context, int index) {
+    //   UserAccount userAccount = widget.userAccounts[index];
+    //   return DuckWidget(userAccount: userAccount);
+    // }, itemCount: widget.userAccounts.length,);
+
+    // child = ListView(
+    //   children: _buildChildren(),
+    // );
+
+    child = Column(
+      mainAxisSize: MainAxisSize.min,
+      children: _buildChildren(),
+    );
+
+    child = SingleChildScrollView(
+      child: child,
+    );
 
     child = Scaffold(
       appBar: AppBar(
@@ -31,6 +44,10 @@ class _BatchUIState extends State<BatchUI> {
       body: child,
     );
     return child;
+  }
+
+  List<Widget> _buildChildren() {
+    return widget.userAccounts.map((e) => DuckWidget(userAccount: e)).toList();
   }
 
   @override

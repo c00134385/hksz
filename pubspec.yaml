@@ -45,6 +45,7 @@ dependencies:
 
   extended_image: any
   intl: any
+  path_provider: any
 
 dev_dependencies:
   flutter_test:

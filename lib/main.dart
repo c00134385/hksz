@@ -2,10 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:hksz/model/models.dart';
 import 'package:hksz/ui/batch.ui.dart';
 import 'package:hksz/ui/check.ui.dart';
+import 'package:hksz/ui/input.ui.dart';
 import 'package:hksz/ui/login.ui.dart';
 import 'package:hksz/ui/order.room.dart';
 import 'package:hksz/ui/quick.order.dart';
 import 'package:http/http.dart' as http;
+import 'constants.dart';
 
 void main() {
   runApp(const MyApp());
@@ -129,6 +131,10 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: checkIn,
               child: const Text('check in'),
             ),
+            ElevatedButton(
+              onPressed: entry,
+              child: const Text('entry'),
+            ),
           ],
         ),
       ),
@@ -147,7 +153,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   toBatch() async {
-    List<UserAccount> userAccounts = account.map((e) {
+    List<UserAccount> userAccounts = accounts.map((e) {
       return UserAccount.fromString(e);
     }).toList();
 
@@ -164,7 +170,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   toOrder() {
-    List<UserAccount> userAccounts = account.map((e) {
+    List<UserAccount> userAccounts = accounts.map((e) {
       return UserAccount.fromString(e);
     }).toList();
 
@@ -174,7 +180,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   quickOrder() {
-    List<UserAccount> userAccounts = account.map((e) {
+    List<UserAccount> userAccounts = accounts.map((e) {
       return UserAccount.fromString(e);
     }).toList();
 
@@ -185,16 +191,22 @@ class _MyHomePageState extends State<MyHomePage> {
 
   checkIn() {
     Navigator.of(context).push(MaterialPageRoute(builder: (context) {
-      return CheckUI(accounts: account);
+      return CheckUI(accounts: accounts);
+    }));
+  }
+
+  entry() {
+    Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+      return InputUI();
     }));
   }
 }
 
-List<String> account = [
-  '4,H09471876,ed521126',
-  // '4,H004304428,a63061977',
-  '3,G49480256,c00134385',
-];
+// List<String> account = [
+//   '4,H09471876,ed521126',
+//   // '4,H004304428,a63061977',
+//   '3,G49480256,c00134385',
+// ];
 
 // [{"id":4,"name":"港澳居民來往內地通行證"},
 // {"id":6,"name":"臺灣居民來往大陸通行證"},
