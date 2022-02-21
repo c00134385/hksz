@@ -1,12 +1,12 @@
 import 'dart:async';
+
+import 'package:cookie_jar/cookie_jar.dart';
 import 'package:dio/dio.dart' hide Response;
 import 'package:dio_cookie_manager/dio_cookie_manager.dart';
 import 'package:hksz/api/pretty.dio.logger.dart';
 import 'package:hksz/model/models.dart';
 // import 'package:pretty_dio_logger/pretty_dio_logger.dart';
 import 'package:retrofit/retrofit.dart';
-import 'package:dio_cookie_manager/dio_cookie_manager.dart';
-import 'package:cookie_jar/cookie_jar.dart';
 
 import 'interceptors.dart';
 
@@ -45,22 +45,38 @@ abstract class MyApi {
   @POST('/passInfo/userCenterIsCanReserve')
   Future<Response<dynamic>> isCanReserve();
 
-  @POST('/orderInfo/getCheckInDate"')
+  @POST('/orderInfo/getCheckInDate')
   Future<Response<dynamic>> getCheckInDate();
 
   @POST('/passInfo/gerReserveOrderInfo')
   Future<Response<dynamic>> getReserveOrderInfo();
 
   @POST('/districtHousenumLog/getList')
-  Future<Response<List<RoomInfo>>> getDistrictHouseList({
-    @Field('checkinDate') String? checkinDate, //"yyyy-MM-dd"
+  Future<Response<List<RoomInfo>>> getDistrictHouseList(
+      {@Field('checkinDate') String? checkinDate} //"yyyy-MM-dd"
+      );
+
+  @POST("/passInfo/getCheckInInfoList")
+  Future getCheckInInfoList(
+    @Field("pageIndex") int pageIndex,
+    @Field("pageSize") int pageSize,
+  );
+
+  @GET("/passInfo/confirmOrder")
+  Future confirmOrder({
+    @Query("checkinDate") String? checkinDate,
+    @Query("t") int? timespan,
+    @Query("s") String? sign,
   });
 
-  @GET('/passInfo/confirmOrder')
-  Future confirmOrder({
-    @Query('checkinDate') String? checkinDate,
-    @Query('t') int? timespan,
-    @Query('s') String? sign,
+  @POST("/passInfo/submitReservation")
+  Future submitReservation( //"yyyy-MM-dd"
+      {
+    @Field("checkinDate") String? checkinDate,
+    @Field("checkCode") String? checkCode,
+    @Field("houseType") int? houseType,
+    @Field("t") int? timeSpan,
+    @Field("s") String? sign,
   });
 }
 
@@ -101,16 +117,16 @@ class MyClient {
     print('myClient: $hashCode');
   }
 
-  // Future<dynamic> getVerify(random) async {
-  //   const _extra = <String, dynamic>{};
-  //   final queryParameters = <String, dynamic>{};
-  //   final _data = <String, dynamic>{};
-  //   final _result = await _dio.fetch(_setStreamType<dynamic>(
-  //       Options(method: 'GET', headers: <String, dynamic>{}, extra: _extra)
-  //           .compose(_dio.options, '/user/getVerify?$random',
-  //           queryParameters: queryParameters, data: _data)
-  //           .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
-  //   final value = _result.data;
-  //   return value;
-  // }
+// Future<dynamic> getVerify(random) async {
+//   const _extra = <String, dynamic>{};
+//   final queryParameters = <String, dynamic>{};
+//   final _data = <String, dynamic>{};
+//   final _result = await _dio.fetch(_setStreamType<dynamic>(
+//       Options(method: 'GET', headers: <String, dynamic>{}, extra: _extra)
+//           .compose(_dio.options, '/user/getVerify?$random',
+//           queryParameters: queryParameters, data: _data)
+//           .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+//   final value = _result.data;
+//   return value;
+// }
 }

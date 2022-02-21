@@ -160,7 +160,7 @@ class _MyApi implements MyApi {
     final _result = await _dio.fetch<Map<String, dynamic>>(
         _setStreamType<Response<dynamic>>(
             Options(method: 'POST', headers: <String, dynamic>{}, extra: _extra)
-                .compose(_dio.options, '/orderInfo/getCheckInDate"',
+                .compose(_dio.options, '/orderInfo/getCheckInDate',
                     queryParameters: queryParameters, data: _data)
                 .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
     final value = Response<dynamic>.fromJson(
@@ -210,6 +210,20 @@ class _MyApi implements MyApi {
   }
 
   @override
+  Future<dynamic> getCheckInInfoList(pageIndex, pageSize) async {
+    const _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    final _data = {'pageIndex': pageIndex, 'pageSize': pageSize};
+    final _result = await _dio.fetch(_setStreamType<dynamic>(
+        Options(method: 'POST', headers: <String, dynamic>{}, extra: _extra)
+            .compose(_dio.options, '/passInfo/getCheckInInfoList',
+                queryParameters: queryParameters, data: _data)
+            .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+    final value = _result.data;
+    return value;
+  }
+
+  @override
   Future<dynamic> confirmOrder({checkinDate, timespan, sign}) async {
     const _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{
@@ -222,6 +236,29 @@ class _MyApi implements MyApi {
     final _result = await _dio.fetch(_setStreamType<dynamic>(
         Options(method: 'GET', headers: <String, dynamic>{}, extra: _extra)
             .compose(_dio.options, '/passInfo/confirmOrder',
+                queryParameters: queryParameters, data: _data)
+            .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
+    final value = _result.data;
+    return value;
+  }
+
+  @override
+  Future<dynamic> submitReservation(
+      {checkinDate, checkCode, houseType, timeSpan, sign}) async {
+    const _extra = <String, dynamic>{};
+    final queryParameters = <String, dynamic>{};
+    queryParameters.removeWhere((k, v) => v == null);
+    final _data = {
+      'checkinDate': checkinDate,
+      'checkCode': checkCode,
+      'houseType': houseType,
+      't': timeSpan,
+      's': sign
+    };
+    _data.removeWhere((k, v) => v == null);
+    final _result = await _dio.fetch(_setStreamType<dynamic>(
+        Options(method: 'POST', headers: <String, dynamic>{}, extra: _extra)
+            .compose(_dio.options, '/passInfo/submitReservation',
                 queryParameters: queryParameters, data: _data)
             .copyWith(baseUrl: baseUrl ?? _dio.options.baseUrl)));
     final value = _result.data;

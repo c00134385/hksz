@@ -7,10 +7,12 @@ import 'package:hksz/api/api.dart';
 import 'package:hksz/model/models.dart';
 import 'package:hksz/ui/widgets.dart';
 import 'package:hksz/utils/utils.dart';
+import 'package:intl/intl.dart';
 import 'package:path_provider/path_provider.dart';
 
 class GrabUI extends StatefulWidget {
   final List<UserAccount> userAccounts;
+
   const GrabUI({Key? key, required this.userAccounts}) : super(key: key);
 
   @override
@@ -67,7 +69,9 @@ class _GrabUIState extends State<GrabUI> with TickerProviderStateMixin {
           unselectedLabelStyle: TextStyle(color: Colors.grey),
           tabs: widget.userAccounts.map((e) {
             Widget child = Text(e.certNo!);
-            child = Padding(padding: EdgeInsets.symmetric(vertical: 12, horizontal: 0), child: child);
+            child = Padding(
+                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 0),
+                child: child);
             return child;
           }).toList(),
         ),
@@ -98,17 +102,18 @@ class _GrabUIState extends State<GrabUI> with TickerProviderStateMixin {
 
 class WorkBodyUI extends StatefulWidget {
   final UserAccount userAccount;
+
   const WorkBodyUI({Key? key, required this.userAccount}) : super(key: key);
 
   @override
   _WorkBodyUIState createState() => _WorkBodyUIState();
 }
 
-class _WorkBodyUIState extends State<WorkBodyUI> {
+class _WorkBodyUIState extends State<WorkBodyUI> with AutomaticKeepAliveClientMixin{
   MyClient? myClient;
   String? result;
   String? verifyCodeFile;
-
+  List<RoomInfo>? roomInfoList;
   TextEditingController? verifyCodeController;
 
   MyApi? get api => myClient?.api;
@@ -190,9 +195,12 @@ class _WorkBodyUIState extends State<WorkBodyUI> {
               ),
               if (null != verifyCodeFile)
                 Expanded(
-                  child: TextField(
-                    controller: verifyCodeController,
-                    keyboardType: TextInputType.text,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    child: TextField(
+                      controller: verifyCodeController,
+                      keyboardType: TextInputType.text,
+                    ),
                   ),
                 ),
             ],
@@ -211,35 +219,61 @@ class _WorkBodyUIState extends State<WorkBodyUI> {
                 child: const Text('Logout'),
               ),
               ElevatedButton(
-                onPressed: _logout,
+                onPressed: _getUserInfo,
                 child: const Text('Get UserInfo'),
               ),
               ElevatedButton(
-                onPressed: _logout,
+                onPressed: _getRooms,
                 child: const Text('Get Rooms'),
               ),
               ElevatedButton(
-                onPressed: _logout,
+                onPressed: _canBeReserved,
                 child: const Text('Can be Reserved'),
               ),
               ElevatedButton(
-                onPressed: _logout,
+                onPressed: _hack1,
                 child: const Text('Hack1'),
               ),
               ElevatedButton(
-                onPressed: _logout,
+                onPressed: _hack2,
                 child: const Text('Hack2'),
               ),
               ElevatedButton(
-                onPressed: _logout,
+                onPressed: _getCheckIn,
                 child: const Text('Get CheckIn'),
               ),
               ElevatedButton(
-                onPressed: _logout,
+                onPressed: _getCheckInList,
                 child: const Text('Get CheckInList'),
               ),
             ],
           ),
+        ),
+        SliverList(
+          delegate:
+              SliverChildBuilderDelegate((BuildContext context, int index) {
+            RoomInfo room = roomInfoList![index];
+            Widget child = Container(
+              padding: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text('${new DateFormat('yyyy-MM-dd').format(room.date!)}'),
+                      Spacer(),
+                      Text('${room.count}/${room.total}'),
+                      Spacer(),
+                      Text(' ${room.timespan}'),
+                    ],
+                  ),
+                  Text('${room.sign}'),
+                ],
+              ),
+            );
+            return child;
+          }, childCount: roomInfoList?.length ?? 0),
         ),
         SliverToBoxAdapter(
           child: Text(result ?? ''),
@@ -261,7 +295,9 @@ class _WorkBodyUIState extends State<WorkBodyUI> {
     double random = Random().nextDouble();
     var ret = await myClient?.api?.getVerify('$random');
     Directory tempDir = await getTemporaryDirectory();
-    String fileName = tempDir.path.endsWith('/') ? (tempDir.path + "$random.jfif") : (tempDir.path + "/$random.jfif");
+    String fileName = tempDir.path.endsWith('/')
+        ? (tempDir.path + "$random.jfif")
+        : (tempDir.path + "/$random.jfif");
     File(fileName).writeAsBytesSync(ret, flush: true);
     verifyCodeFile = fileName;
     result = verifyCodeFile;
@@ -269,14 +305,16 @@ class _WorkBodyUIState extends State<WorkBodyUI> {
   }
 
   _login() async {
-    int certType = widget.userAccount.certificate?.id ?? 4;
+    int certType = widget.userAccount.certType!;
     String certNo = widget.userAccount.certNo ?? '';
     String pwd = widget.userAccount.pwd ?? '';
     String verifyCode = verifyCodeController!.text;
-    print('certType: $certType  certNo: $certNo pwd: $pwd verifyCode: $verifyCode');
+    print(
+        'certType: $certType  certNo: $certNo pwd: $pwd verifyCode: $verifyCode');
     showLoading();
     var ret = await myClient?.api
-        ?.login(certType, Utils.encodeBase64(certNo), Utils.encodeBase64(Utils.generateMd5(pwd)), verifyCode)
+        ?.login(certType, Utils.encodeBase64(certNo),
+            Utils.encodeBase64(Utils.generateMd5(pwd)), verifyCode)
         .catchError((e) {
       print('e: $e');
       result = '$e';
@@ -288,9 +326,67 @@ class _WorkBodyUIState extends State<WorkBodyUI> {
 
   _logout() async {
     showLoading();
-    var ret = await myClient?.api
-        ?.logout()
-        .catchError((e) {
+    var ret = await myClient?.api?.logout().catchError((e) {
+      print('e: $e');
+      result = '$e';
+      hideLoading();
+    });
+    result = ret.toString();
+    hideLoading();
+  }
+
+  _getUserInfo() async {
+    showLoading();
+    var ret = await myClient?.api?.getUserInfo().catchError((e) {
+      print('e: $e');
+      result = '$e';
+      hideLoading();
+    });
+    result = ret.toString();
+    hideLoading();
+  }
+
+  _getRooms() async {
+    showLoading();
+    var ret = await myClient?.api?.getDistrictHouseList().catchError((e) {
+      print('e: $e');
+      result = '$e';
+      hideLoading();
+    });
+    roomInfoList = ret?.data!;
+    result = ret.toString();
+    hideLoading();
+  }
+
+  _canBeReserved() async {
+    showLoading();
+    var ret = await myClient?.api?.isCanReserve().catchError((e) {
+      print('e: $e');
+      result = '$e';
+      hideLoading();
+    });
+    result = ret.toString();
+    hideLoading();
+  }
+
+  _hack1() {}
+
+  _hack2() {}
+
+  _getCheckIn() async {
+    showLoading();
+    var ret = await myClient?.api?.getCheckInDate().catchError((e) {
+      print('e: $e');
+      result = '$e';
+      hideLoading();
+    });
+    result = ret.toString();
+    hideLoading();
+  }
+
+  _getCheckInList() async {
+    showLoading();
+    var ret = await myClient?.api?.getCheckInInfoList(1, 10).catchError((e) {
       print('e: $e');
       result = '$e';
       hideLoading();
@@ -300,6 +396,7 @@ class _WorkBodyUIState extends State<WorkBodyUI> {
   }
 
   bool bShowLoading = false;
+
   showLoading() {
     setState(() {
       bShowLoading = true;
@@ -311,4 +408,8 @@ class _WorkBodyUIState extends State<WorkBodyUI> {
       bShowLoading = false;
     });
   }
+
+  @override
+  // TODO: implement wantKeepAlive
+  bool get wantKeepAlive => true;
 }

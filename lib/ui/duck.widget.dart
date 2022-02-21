@@ -14,6 +14,7 @@ import 'package:intl/intl.dart';
 
 class DuckWidget extends StatefulWidget {
   final UserAccount userAccount;
+
   const DuckWidget({
     Key? key,
     required this.userAccount,
@@ -71,14 +72,17 @@ class _DuckWidgetState extends State<DuckWidget> with TimerTaskStateMixin {
             ),
           ],
         ),
-
         Wrap(
           children: [
             ElevatedButton(onPressed: login, child: const Text('login')),
             ElevatedButton(onPressed: logout, child: const Text('logout')),
-            ElevatedButton(onPressed: getUserInfo, child: const Text('getUserInfo')),
-            ElevatedButton(onPressed: isCanReserve, child: const Text('isCanReserve')),
-            ElevatedButton(onPressed: getDistrictHouseList, child: const Text('getDistrictHouseList')),
+            ElevatedButton(
+                onPressed: getUserInfo, child: const Text('getUserInfo')),
+            ElevatedButton(
+                onPressed: isCanReserve, child: const Text('isCanReserve')),
+            ElevatedButton(
+                onPressed: getDistrictHouseList,
+                child: const Text('getDistrictHouseList')),
             ElevatedButton(
                 onPressed: () {
                   startTimer();
@@ -134,7 +138,8 @@ class _DuckWidgetState extends State<DuckWidget> with TimerTaskStateMixin {
       padding: const EdgeInsets.all(10),
       decoration: BoxDecoration(
         color: _isLogin ? Colors.yellow[200] : Colors.transparent,
-        border: const Border(bottom: const BorderSide(color: Colors.grey, width: 1.0)),
+        border: const Border(
+            bottom: const BorderSide(color: Colors.grey, width: 1.0)),
       ),
     );
 
@@ -158,7 +163,9 @@ class _DuckWidgetState extends State<DuckWidget> with TimerTaskStateMixin {
   }
 
   getVerify() async {
-    var result = await myClient?.api?.getVerify('${Random().nextDouble()}').catchError((e) {
+    var result = await myClient?.api
+        ?.getVerify('${Random().nextDouble()}')
+        .catchError((e) {
       print('e: $e');
     });
 
@@ -172,9 +179,11 @@ class _DuckWidgetState extends State<DuckWidget> with TimerTaskStateMixin {
     String certNo = widget.userAccount.certNo ?? '';
     String pwd = widget.userAccount.pwd ?? '';
     String verifyCode = textEditingController!.text;
-    print('certType: $certType  certNo: $certNo pwd: $pwd verifyCode: $verifyCode');
+    print(
+        'certType: $certType  certNo: $certNo pwd: $pwd verifyCode: $verifyCode');
     var result = await myClient?.api
-        ?.login(certType, Utils.encodeBase64(certNo), Utils.encodeBase64(Utils.generateMd5(pwd)), verifyCode)
+        ?.login(certType, Utils.encodeBase64(certNo),
+            Utils.encodeBase64(Utils.generateMd5(pwd)), verifyCode)
         .catchError((e) {
       print('e: $e');
     });
@@ -228,10 +237,13 @@ class _DuckWidgetState extends State<DuckWidget> with TimerTaskStateMixin {
   }
 
   getDistrictHouseList() async {
-    var checkInDate = new DateFormat('yyyy-MM-dd').format(DateTime.now().add(Duration(days: 6)));
+    var checkInDate = new DateFormat('yyyy-MM-dd')
+        .format(DateTime.now().add(Duration(days: 6)));
     print('checkinDate: $checkInDate');
 
-    var result = await myClient?.api?.getDistrictHouseList(checkinDate: checkInDate).catchError((e) {
+    var result = await myClient?.api
+        ?.getDistrictHouseList(checkinDate: checkInDate)
+        .catchError((e) {
       print('e: $e');
     });
     setState(() {
@@ -240,10 +252,9 @@ class _DuckWidgetState extends State<DuckWidget> with TimerTaskStateMixin {
         print('roomInfo: ${element.toJson()}');
       });
       _result = '$result';
-      if(null != result?.data) {
+      if (null != result?.data) {
         rooms = result!.data!;
       }
-
     });
   }
 
@@ -252,12 +263,16 @@ class _DuckWidgetState extends State<DuckWidget> with TimerTaskStateMixin {
     var checkInDate = new DateFormat('yyyy-MM-dd').format(roomInfo.date!);
     print('checkinDate: $checkInDate');
     var result = await myClient?.api
-        ?.confirmOrder(checkinDate: checkInDate, timespan: roomInfo.timespan, sign: roomInfo.sign)
+        ?.confirmOrder(
+            checkinDate: checkInDate,
+            timespan: roomInfo.timespan,
+            sign: roomInfo.sign)
         .catchError((e) {
       print('e: $e');
     });
     setState(() {
-      print('userAccount: ${widget.userAccount.certType} / ${widget.userAccount.certNo} / ${widget.userAccount.pwd}');
+      print(
+          'userAccount: ${widget.userAccount.certType} / ${widget.userAccount.certNo} / ${widget.userAccount.pwd}');
       print('result: $result');
       // _result = '$result';
     });
@@ -288,7 +303,8 @@ class _DuckWidgetState extends State<DuckWidget> with TimerTaskStateMixin {
 
     while (true) {
       try {
-        var result = await myClient?.api?.getDistrictHouseList().catchError((e) {
+        var result =
+            await myClient?.api?.getDistrictHouseList().catchError((e) {
           print('e: $e');
         });
         print('result:  $result');
