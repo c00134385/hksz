@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hksz/api/api.dart';
 import 'package:hksz/model/models.dart';
+import 'package:hksz/ui/task.ui.dart';
 import 'package:hksz/ui/widgets.dart';
 import 'package:hksz/utils/utils.dart';
 import 'package:intl/intl.dart';
@@ -71,6 +72,16 @@ class _GrabUIState extends State<GrabUI> with TickerProviderStateMixin {
         )),
       ],
     );
+
+    child = GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () {
+        FocusScope.of(context).requestFocus(FocusNode());
+      },
+      child: child,
+    );
+
+    child = SafeArea(child: child);
 
     child = Scaffold(
       appBar: AppBar(
@@ -289,56 +300,23 @@ class _WorkBodyUIState extends State<WorkBodyUI> with AutomaticKeepAliveClientMi
         ),
         SliverList(
           delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
-            TimerTask task =
+            TimerTask timerTask =
                 (index < hackTaskList1.length) ? hackTaskList1[index] : hackTaskList2[index - hackTaskList1.length];
-            Widget child = Container();
-            child = Row(
-              children: [
-                Text('$index'),
-                SizedBox(
-                  width: 15,
-                ),
-                (index < hackTaskList1.length) ? Text("TaskGoup1") : Text("TaskGroup2"),
-                Spacer(),
-                (true == task._timer?.isActive)
-                    ? const Icon(
-                        Icons.lightbulb,
-                        color: Colors.greenAccent,
-                      )
-                    : const Icon(
-                        Icons.lightbulb,
-                        color: Colors.grey,
-                      ),
-              ],
+            Widget child = TimerTaskWidget(
+              task: timerTask,
             );
-            child = Padding(padding: EdgeInsets.symmetric(vertical: 3, horizontal: 12), child: child,);
+
+            child = InkWell(
+              child: child,
+              onTap: () {
+                Navigator.of(context).push(MaterialPageRoute(builder: (context) {
+                  return TaskUI(timerTask: timerTask);
+                }));
+              },
+            );
+
             return child;
           }, childCount: hackTaskList1.length + hackTaskList2.length),
-        ),
-        SliverList(
-          delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
-            RoomInfo room = roomInfoList![index];
-            Widget child = Container(
-              padding: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      Text('${new DateFormat('yyyy-MM-dd').format(room.date!)}'),
-                      Spacer(),
-                      Text('${room.count}/${room.total}'),
-                      Spacer(),
-                      Text(' ${room.timespan}'),
-                    ],
-                  ),
-                  Text('${room.sign}'),
-                ],
-              ),
-            );
-            return child;
-          }, childCount: roomInfoList?.length ?? 0),
         ),
         SliverList(
           delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
@@ -370,16 +348,6 @@ class _WorkBodyUIState extends State<WorkBodyUI> with AutomaticKeepAliveClientMi
         ),
       ],
     );
-
-    child = GestureDetector(
-      behavior: HitTestBehavior.translucent,
-      onTap: () {
-        FocusScope.of(context).requestFocus(FocusNode());
-      },
-      child: child,
-    );
-
-    child = SafeArea(child: child);
 
     return child;
   }
@@ -478,40 +446,45 @@ class _WorkBodyUIState extends State<WorkBodyUI> with AutomaticKeepAliveClientMi
       if (hackTaskList1.length > taskCount) {
         break;
       }
-      hackTaskList1.add(TimerTask(timeOffset, timerAction: () async {
-        RoomInfo? room = roomInfoList?.last;
-        if (null != room) {
-          var ret = await api
-              ?.confirmOrder(
-                  checkinDate: DateFormat('yyyy-MM-dd').format(room.date!), timespan: room.timespan, sign: room.sign)
-              .catchError((e) {
-            print('e: $e');
-            result = '$e';
-            return;
-          });
+      hackTaskList1.add(TimerTask(
+          offset: timeOffset,
+          timerStateChange: () => setState(() {}),
+          timerAction: () async {
+            RoomInfo? room = roomInfoList?.last;
+            if (null != room) {
+              var ret = await api
+                  ?.confirmOrder(
+                      checkinDate: DateFormat('yyyy-MM-dd').format(room.date!),
+                      timespan: room.timespan,
+                      sign: room.sign)
+                  .catchError((e) {
+                print('e: $e');
+                result = '$e';
+                return;
+              });
 
-          result = ret.toString();
-          var document = parse(result);
-          // var checkInDate = document.getElementById("hidCheckinDate")?.attributes['value'];
-          // var timeSpan = document.getElementById("hidTimespan")?.attributes['value'];
-          // var sign = document.getElementById("hidSign")?.attributes['value'];
-          var houseType = document.getElementById("hidHouseType")?.attributes['value'];
-          ret = await api
-              ?.submitReservation(
-                  checkinDate: DateFormat('yyyy-MM-dd').format(room.date!),
-                  timeSpan: room.timespan,
-                  sign: room.sign,
-                  checkCode: verifyCodeController?.text,
-                  houseType: houseType ?? "1")
-              .catchError((e) {
-            print('e: $e');
-            result = '$e';
-            return;
-          });
+              result = ret.toString();
+              var document = parse(result);
+              // var checkInDate = document.getElementById("hidCheckinDate")?.attributes['value'];
+              // var timeSpan = document.getElementById("hidTimespan")?.attributes['value'];
+              // var sign = document.getElementById("hidSign")?.attributes['value'];
+              var houseType = document.getElementById("hidHouseType")?.attributes['value'];
+              ret = await api
+                  ?.submitReservation(
+                      checkinDate: DateFormat('yyyy-MM-dd').format(room.date!),
+                      timeSpan: room.timespan,
+                      sign: room.sign,
+                      checkCode: verifyCodeController?.text,
+                      houseType: houseType ?? "1")
+                  .catchError((e) {
+                print('e: $e');
+                result = '$e';
+                return;
+              });
 
-          result = ret.toString();
-        }
-      }));
+              result = ret.toString();
+            }
+          }));
       setState(() {});
     }
   }
@@ -521,25 +494,28 @@ class _WorkBodyUIState extends State<WorkBodyUI> with AutomaticKeepAliveClientMi
       if (hackTaskList2.length > taskCount) {
         break;
       }
-      hackTaskList2.add(TimerTask(timeOffset, timerAction: () async {
-        RoomInfo? room = roomInfoList?.last;
-        if (null != room) {
-          var ret = await api
-              ?.submitReservation(
-                  checkinDate: DateFormat('yyyy-MM-dd').format(room.date!),
-                  timeSpan: room.timespan,
-                  sign: room.sign,
-                  checkCode: verifyCodeController?.text,
-                  houseType: "1")
-              .catchError((e) {
-            print('e: $e');
-            result = '$e';
-            return;
-          });
+      hackTaskList2.add(TimerTask(
+          offset: timeOffset,
+          timerStateChange: () => setState(() {}),
+          timerAction: () async {
+            RoomInfo? room = roomInfoList?.last;
+            if (null != room) {
+              var ret = await api
+                  ?.submitReservation(
+                      checkinDate: DateFormat('yyyy-MM-dd').format(room.date!),
+                      timeSpan: room.timespan,
+                      sign: room.sign,
+                      checkCode: verifyCodeController?.text,
+                      houseType: "1")
+                  .catchError((e) {
+                print('e: $e');
+                result = '$e';
+                return;
+              });
 
-          result = ret.toString();
-        }
-      }));
+              result = ret.toString();
+            }
+          }));
       setState(() {});
     }
   }
@@ -615,14 +591,15 @@ class _WorkBodyUIState extends State<WorkBodyUI> with AutomaticKeepAliveClientMi
   bool get wantKeepAlive => true;
 }
 
-typedef TimerAction = void Function();
+typedef TimerAction = dynamic Function();
+typedef TimerStateChange = void Function();
 
 class TimerTask {
-  Timer? _timer;
-  final TimerAction timerAction;
-  final int offset;
+  final TimerAction? timerAction;
+  final TimerStateChange? timerStateChange;
+  final int? offset;
 
-  TimerTask(this.offset, {required this.timerAction}) {
+  TimerTask({this.timerAction, this.timerStateChange, this.offset}) {
     _startTimer();
   }
 
@@ -630,7 +607,12 @@ class TimerTask {
     _cancelTimer();
   }
 
-  bool get isTimerActive => _timer?.isActive ?? false;
+  Timer? _timer;
+  String? _output;
+
+  String get output => _output ?? 'null';
+
+  bool get isActive => _timer?.isActive ?? false;
 
   _startTimer() {
     _cancelTimer();
@@ -640,15 +622,51 @@ class TimerTask {
       DateTime.now().day,
       10,
     );
-    var duration = beginTime.add(Duration(milliseconds: offset)).difference(DateTime.now());
-    print('beginTime: ${beginTime} ${beginTime.add(Duration(milliseconds: offset))}');
+
+    timerStateChange?.call();
+
+    var duration = beginTime.add(Duration(milliseconds: offset ?? 0)).difference(DateTime.now());
+    print('beginTime: ${beginTime} ${beginTime.add(Duration(milliseconds: offset ?? 0))}');
     _timer = Timer(duration, () {
-      timerAction();
+      _output = timerAction?.call();
+      timerStateChange?.call();
     });
   }
 
   _cancelTimer() {
     _timer?.cancel();
     _timer = null;
+  }
+}
+
+class TimerTaskWidget extends StatelessWidget {
+  final TimerTask task;
+
+  const TimerTaskWidget({Key? key, required this.task}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    TimerTask timerTask = task;
+    Widget child = Container();
+    child = Row(
+      children: [
+        Text('${timerTask.hashCode}'),
+        const Spacer(),
+        (true == timerTask.isActive)
+            ? const Icon(
+                Icons.lightbulb,
+                color: Colors.greenAccent,
+              )
+            : const Icon(
+                Icons.lightbulb,
+                color: Colors.grey,
+              ),
+      ],
+    );
+    child = Padding(
+      padding: EdgeInsets.symmetric(vertical: 3, horizontal: 12),
+      child: child,
+    );
+    return child;
   }
 }
