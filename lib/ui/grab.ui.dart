@@ -4,6 +4,7 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:hksz/api/api.dart';
 import 'package:hksz/model/models.dart';
 import 'package:hksz/ui/widgets.dart';
@@ -15,7 +16,10 @@ import 'package:html/parser.dart';
 class GrabUI extends StatefulWidget {
   final List<UserAccount> userAccounts;
 
-  const GrabUI({Key? key, required this.userAccounts}) : super(key: key);
+  const GrabUI({
+    Key? key,
+    required this.userAccounts,
+  }) : super(key: key);
 
   @override
   _GrabUIState createState() => _GrabUIState();
@@ -42,25 +46,6 @@ class _GrabUIState extends State<GrabUI> with TickerProviderStateMixin {
   Widget build(BuildContext context) {
     Widget child = Container();
 
-    // child = CustomScrollView(
-    //   slivers: [
-    //     SliverToBoxAdapter(
-    //       child: TabBar(
-    //         controller: _tabController,
-    //         isScrollable: true,
-    //         labelColor: Colors.black,
-    //         labelStyle: TextStyle(fontSize: 15),
-    //         unselectedLabelStyle: TextStyle(color: Colors.grey),
-    //         tabs: widget.userAccounts.map((e) {
-    //           Widget child = Text(e.certNo!);
-    //           child = Padding(padding: EdgeInsets.symmetric(vertical: 12, horizontal: 0), child: child);
-    //           return child;
-    //         }).toList(),
-    //       ),
-    //     ),
-    //   ],
-    // );
-
     child = Column(
       children: [
         TabBar(
@@ -71,9 +56,7 @@ class _GrabUIState extends State<GrabUI> with TickerProviderStateMixin {
           unselectedLabelStyle: TextStyle(color: Colors.grey),
           tabs: widget.userAccounts.map((e) {
             Widget child = Text(e.certNo!);
-            child = Padding(
-                padding: EdgeInsets.symmetric(vertical: 12, horizontal: 0),
-                child: child);
+            child = Padding(padding: EdgeInsets.symmetric(vertical: 12, horizontal: 0), child: child);
             return child;
           }).toList(),
         ),
@@ -81,9 +64,6 @@ class _GrabUIState extends State<GrabUI> with TickerProviderStateMixin {
             child: TabBarView(
           controller: _tabController,
           children: widget.userAccounts.map((e) {
-            // Widget child = Text(e.certNo!);
-            // child = Padding(padding: EdgeInsets.symmetric(vertical: 12, horizontal: 0), child: child);
-            // return child;
             return WorkBodyUI(
               userAccount: e,
             );
@@ -105,14 +85,16 @@ class _GrabUIState extends State<GrabUI> with TickerProviderStateMixin {
 class WorkBodyUI extends StatefulWidget {
   final UserAccount userAccount;
 
+  // final int offset;
+  // final int taskCount;
+
   const WorkBodyUI({Key? key, required this.userAccount}) : super(key: key);
 
   @override
   _WorkBodyUIState createState() => _WorkBodyUIState();
 }
 
-class _WorkBodyUIState extends State<WorkBodyUI>
-    with AutomaticKeepAliveClientMixin {
+class _WorkBodyUIState extends State<WorkBodyUI> with AutomaticKeepAliveClientMixin {
   MyClient? myClient;
   String? result;
   String? verifyCodeFile;
@@ -120,6 +102,13 @@ class _WorkBodyUIState extends State<WorkBodyUI>
   TextEditingController? verifyCodeController;
 
   MyApi? get api => myClient?.api;
+
+  double timeOffsetIndex = 0.5;
+  double taskCountIndex = 0.05;
+
+  int get timeOffset => (timeOffsetIndex * 100 - 50).toInt();
+
+  int get taskCount => (taskCountIndex * 100).toInt();
 
   @override
   void initState() {
@@ -132,6 +121,12 @@ class _WorkBodyUIState extends State<WorkBodyUI>
   void dispose() {
     super.dispose();
     verifyCodeController?.dispose();
+    hackTaskList1.forEach((element) {
+      element.dispose();
+    });
+    hackTaskList2.forEach((element) {
+      element.dispose();
+    });
   }
 
   @override
@@ -210,6 +205,46 @@ class _WorkBodyUIState extends State<WorkBodyUI>
           ),
         ),
         SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 5),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  children: [
+                    Text('timeOffset: $timeOffset'),
+                    Expanded(
+                      child: Slider(
+                          value: timeOffsetIndex,
+                          onChanged: (value) {
+                            print('value: $value');
+                            setState(() {
+                              timeOffsetIndex = value;
+                            });
+                          }),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Text('timeCount: $taskCount'),
+                    Expanded(
+                      child: Slider(
+                          value: taskCountIndex,
+                          onChanged: (value) {
+                            print('value: $value');
+                            setState(() {
+                              taskCountIndex = value;
+                            });
+                          }),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ),
+        SliverToBoxAdapter(
           child: Wrap(
             spacing: 10,
             children: [
@@ -253,8 +288,35 @@ class _WorkBodyUIState extends State<WorkBodyUI>
           ),
         ),
         SliverList(
-          delegate:
-              SliverChildBuilderDelegate((BuildContext context, int index) {
+          delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
+            TimerTask task =
+                (index < hackTaskList1.length) ? hackTaskList1[index] : hackTaskList2[index - hackTaskList1.length];
+            Widget child = Container();
+            child = Row(
+              children: [
+                Text('$index'),
+                SizedBox(
+                  width: 15,
+                ),
+                (index < hackTaskList1.length) ? Text("TaskGoup1") : Text("TaskGroup2"),
+                Spacer(),
+                (true == task._timer?.isActive)
+                    ? const Icon(
+                        Icons.lightbulb,
+                        color: Colors.greenAccent,
+                      )
+                    : const Icon(
+                        Icons.lightbulb,
+                        color: Colors.grey,
+                      ),
+              ],
+            );
+            child = Padding(padding: EdgeInsets.symmetric(vertical: 3, horizontal: 12), child: child,);
+            return child;
+          }, childCount: hackTaskList1.length + hackTaskList2.length),
+        ),
+        SliverList(
+          delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
             RoomInfo room = roomInfoList![index];
             Widget child = Container(
               padding: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
@@ -264,8 +326,32 @@ class _WorkBodyUIState extends State<WorkBodyUI>
                 children: [
                   Row(
                     children: [
-                      Text(
-                          '${new DateFormat('yyyy-MM-dd').format(room.date!)}'),
+                      Text('${new DateFormat('yyyy-MM-dd').format(room.date!)}'),
+                      Spacer(),
+                      Text('${room.count}/${room.total}'),
+                      Spacer(),
+                      Text(' ${room.timespan}'),
+                    ],
+                  ),
+                  Text('${room.sign}'),
+                ],
+              ),
+            );
+            return child;
+          }, childCount: roomInfoList?.length ?? 0),
+        ),
+        SliverList(
+          delegate: SliverChildBuilderDelegate((BuildContext context, int index) {
+            RoomInfo room = roomInfoList![index];
+            Widget child = Container(
+              padding: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text('${new DateFormat('yyyy-MM-dd').format(room.date!)}'),
                       Spacer(),
                       Text('${room.count}/${room.total}'),
                       Spacer(),
@@ -285,6 +371,16 @@ class _WorkBodyUIState extends State<WorkBodyUI>
       ],
     );
 
+    child = GestureDetector(
+      behavior: HitTestBehavior.translucent,
+      onTap: () {
+        FocusScope.of(context).requestFocus(FocusNode());
+      },
+      child: child,
+    );
+
+    child = SafeArea(child: child);
+
     return child;
   }
 
@@ -299,9 +395,7 @@ class _WorkBodyUIState extends State<WorkBodyUI>
     double random = Random().nextDouble();
     var ret = await myClient?.api?.getVerify('$random');
     Directory tempDir = await getTemporaryDirectory();
-    String fileName = tempDir.path.endsWith('/')
-        ? (tempDir.path + "$random.jfif")
-        : (tempDir.path + "/$random.jfif");
+    String fileName = tempDir.path.endsWith('/') ? (tempDir.path + "$random.jfif") : (tempDir.path + "/$random.jfif");
     File(fileName).writeAsBytesSync(ret, flush: true);
     verifyCodeFile = fileName;
     result = verifyCodeFile;
@@ -313,12 +407,10 @@ class _WorkBodyUIState extends State<WorkBodyUI>
     String certNo = widget.userAccount.certNo ?? '';
     String pwd = widget.userAccount.pwd ?? '';
     String verifyCode = verifyCodeController!.text;
-    print(
-        'certType: $certType  certNo: $certNo pwd: $pwd verifyCode: $verifyCode');
+    print('certType: $certType  certNo: $certNo pwd: $pwd verifyCode: $verifyCode');
     showLoading();
     var ret = await myClient?.api
-        ?.login(certType, Utils.encodeBase64(certNo),
-            Utils.encodeBase64(Utils.generateMd5(pwd)), verifyCode)
+        ?.login(certType, Utils.encodeBase64(certNo), Utils.encodeBase64(Utils.generateMd5(pwd)), verifyCode)
         .catchError((e) {
       print('e: $e');
       result = '$e';
@@ -352,8 +444,7 @@ class _WorkBodyUIState extends State<WorkBodyUI>
 
   _getRooms() async {
     Timer.periodic(Duration(seconds: 3), (timer) async {
-      if (DateTime.now().isAfter(DateTime(DateTime.now().year,
-          DateTime.now().month, DateTime.now().day, 9, 59, 45))) {
+      if (DateTime.now().isAfter(DateTime(DateTime.now().year, DateTime.now().month, DateTime.now().day, 9, 59, 45))) {
         timer.cancel();
       }
       showLoading();
@@ -384,17 +475,15 @@ class _WorkBodyUIState extends State<WorkBodyUI>
 
   _hack1() {
     while (true) {
-      if (hackTaskList1.length > 100) {
+      if (hackTaskList1.length > taskCount) {
         break;
       }
-      hackTaskList1.add(TimerTask(timerAction: () async {
+      hackTaskList1.add(TimerTask(timeOffset, timerAction: () async {
         RoomInfo? room = roomInfoList?.last;
         if (null != room) {
           var ret = await api
               ?.confirmOrder(
-                  checkinDate: DateFormat('yyyy-MM-dd').format(room.date!),
-                  timespan: room.timespan,
-                  sign: room.sign)
+                  checkinDate: DateFormat('yyyy-MM-dd').format(room.date!), timespan: room.timespan, sign: room.sign)
               .catchError((e) {
             print('e: $e');
             result = '$e';
@@ -403,15 +492,17 @@ class _WorkBodyUIState extends State<WorkBodyUI>
 
           result = ret.toString();
           var document = parse(result);
-          // document.getElementById('hid')
-
+          // var checkInDate = document.getElementById("hidCheckinDate")?.attributes['value'];
+          // var timeSpan = document.getElementById("hidTimespan")?.attributes['value'];
+          // var sign = document.getElementById("hidSign")?.attributes['value'];
+          var houseType = document.getElementById("hidHouseType")?.attributes['value'];
           ret = await api
               ?.submitReservation(
                   checkinDate: DateFormat('yyyy-MM-dd').format(room.date!),
                   timeSpan: room.timespan,
                   sign: room.sign,
                   checkCode: verifyCodeController?.text,
-                  houseType: 1)
+                  houseType: houseType ?? "1")
               .catchError((e) {
             print('e: $e');
             result = '$e';
@@ -421,15 +512,16 @@ class _WorkBodyUIState extends State<WorkBodyUI>
           result = ret.toString();
         }
       }));
+      setState(() {});
     }
   }
 
   _hack2() {
     while (true) {
-      if (hackTaskList2.length > 100) {
+      if (hackTaskList2.length > taskCount) {
         break;
       }
-      hackTaskList2.add(TimerTask(timerAction: () async {
+      hackTaskList2.add(TimerTask(timeOffset, timerAction: () async {
         RoomInfo? room = roomInfoList?.last;
         if (null != room) {
           var ret = await api
@@ -438,7 +530,7 @@ class _WorkBodyUIState extends State<WorkBodyUI>
                   timeSpan: room.timespan,
                   sign: room.sign,
                   checkCode: verifyCodeController?.text,
-                  houseType: 1)
+                  houseType: "1")
               .catchError((e) {
             print('e: $e');
             result = '$e';
@@ -448,17 +540,28 @@ class _WorkBodyUIState extends State<WorkBodyUI>
           result = ret.toString();
         }
       }));
+      setState(() {});
     }
   }
 
   _test() async {
+    var bytes = await rootBundle.loadString("assets/test.html");
+    print(bytes);
+    var document = parse(bytes);
+    var checkInDate = document.getElementById("hidCheckinDate")?.attributes['value'];
+    var timeSpan = document.getElementById("hidTimespan")?.attributes['value'];
+    var sign = document.getElementById("hidSign")?.attributes['value'];
+    var houseType = document.getElementById("hidHouseType")?.attributes['value'];
+    var t = int.tryParse(timeSpan!);
+    print('');
+  }
+
+  _test1() async {
     RoomInfo? room = roomInfoList?.last;
     if (null != room) {
       var ret = await api
           ?.confirmOrder(
-              checkinDate: DateFormat('yyyy-MM-dd').format(room.date!),
-              timespan: room.timespan,
-              sign: room.sign)
+              checkinDate: DateFormat('yyyy-MM-dd').format(room.date!), timespan: room.timespan, sign: room.sign)
           .catchError((e) {
         print('e: $e');
         result = '$e';
@@ -466,7 +569,7 @@ class _WorkBodyUIState extends State<WorkBodyUI>
       });
       result = ret.toString();
 
-      var document = parse(result);
+      // var document = parse(result);
       // document.getElementById('hid')
     }
   }
@@ -517,12 +620,12 @@ typedef TimerAction = void Function();
 class TimerTask {
   Timer? _timer;
   final TimerAction timerAction;
+  final int offset;
 
-  TimerTask({required this.timerAction}) {
+  TimerTask(this.offset, {required this.timerAction}) {
     _startTimer();
   }
 
-  @override
   void dispose() {
     _cancelTimer();
   }
@@ -537,10 +640,8 @@ class TimerTask {
       DateTime.now().day,
       10,
     );
-    // beginTime = beginTime.subtract(Duration(milliseconds: 10));
-    // print('duration: $beginTime ${beginTime.subtract(Duration(milliseconds: 1000))}');
-    var duration = beginTime.difference(DateTime.now());
-    print('duration: $duration');
+    var duration = beginTime.add(Duration(milliseconds: offset)).difference(DateTime.now());
+    print('beginTime: ${beginTime} ${beginTime.add(Duration(milliseconds: offset))}');
     _timer = Timer(duration, () {
       timerAction();
     });

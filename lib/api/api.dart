@@ -74,7 +74,7 @@ abstract class MyApi {
       {
     @Field("checkinDate") String? checkinDate,
     @Field("checkCode") String? checkCode,
-    @Field("houseType") int? houseType,
+    @Field("houseType") String? houseType,
     @Field("t") int? timeSpan,
     @Field("s") String? sign,
   });

@@ -60,6 +60,9 @@ class _InputUIState extends State<InputUI> {
       ),
       body: child,
     );
+
+    child = SafeArea(child: child);
+
     return child;
   }
 
