@@ -17,7 +17,7 @@ class _InputUIState extends State<InputUI> {
   @override
   void initState() {
     super.initState();
-    textEditingController.text = "4,H09471876,ed521126\n4,H04304428,a63061977\n3,G49480256,c00134385";
+    textEditingController.text = "4,H09471876,ed521126";
   }
 
   @override
@@ -43,6 +43,16 @@ class _InputUIState extends State<InputUI> {
           onPressed: next,
           child: const Text('Next'),
         ),
+        Expanded(child: Container(
+          alignment: Alignment.bottomLeft,
+          padding: EdgeInsets.all(15),
+          child: Text(''
+              '{"id":4,"name":"港澳居民來往內地通行證"}\n'
+              '{"id":6,"name":"臺灣居民來往大陸通行證"}\n'
+              '{"id":2,"name":"往來港澳通行證"}\n'
+              '{"id":3,"name":"護照"}'),
+
+        )),
       ],
     );
 
@@ -72,7 +82,7 @@ class _InputUIState extends State<InputUI> {
     }
 
     try {
-      List<String> accountStr = textEditingController.text.trim().split("\n");
+      List<String> accountStr = textEditingController.text.trim().split("n");
       List<UserAccount> accounts = accountStr.map((e) {
         return UserAccount.fromString(e.trim());
       }).toList();

@@ -104,33 +104,33 @@ class _MyHomePageState extends State<MyHomePage> {
           // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            const Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-            ElevatedButton(
-              onPressed: toLogin,
-              child: const Text('Login'),
-            ),
-            ElevatedButton(
-              onPressed: toBatch,
-              child: const Text('open batch'),
-            ),
-            ElevatedButton(
-              onPressed: toOrder,
-              child: const Text('order room'),
-            ),
-            ElevatedButton(
-              onPressed: quickOrder,
-              child: const Text('quickOrder'),
-            ),
-            ElevatedButton(
-              onPressed: checkIn,
-              child: const Text('check in'),
-            ),
+            // const Text(
+            //   'You have pushed the button this many times:',
+            // ),
+            // Text(
+            //   '$_counter',
+            //   style: Theme.of(context).textTheme.headline4,
+            // ),
+            // ElevatedButton(
+            //   onPressed: toLogin,
+            //   child: const Text('Login'),
+            // ),
+            // ElevatedButton(
+            //   onPressed: toBatch,
+            //   child: const Text('open batch'),
+            // ),
+            // ElevatedButton(
+            //   onPressed: toOrder,
+            //   child: const Text('order room'),
+            // ),
+            // ElevatedButton(
+            //   onPressed: quickOrder,
+            //   child: const Text('quickOrder'),
+            // ),
+            // ElevatedButton(
+            //   onPressed: checkIn,
+            //   child: const Text('check in'),
+            // ),
             ElevatedButton(
               onPressed: entry,
               child: const Text('entry'),

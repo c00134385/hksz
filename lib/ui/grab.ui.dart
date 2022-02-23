@@ -114,8 +114,8 @@ class _WorkBodyUIState extends State<WorkBodyUI> with AutomaticKeepAliveClientMi
 
   MyApi? get api => myClient?.api;
 
-  double timeOffsetIndex = 0.5;
-  double taskCountIndex = 0.05;
+  double timeOffsetIndex = 0.0;
+  double taskCountIndex = 0.25;
 
   int get timeOffset => (timeOffsetIndex * 100 - 50).toInt();
 
@@ -224,6 +224,7 @@ class _WorkBodyUIState extends State<WorkBodyUI> with AutomaticKeepAliveClientMi
                 Row(
                   children: [
                     Text('timeOffset: $timeOffset'),
+                    SizedBox(width: 20,),
                     Expanded(
                       child: Slider(
                           value: timeOffsetIndex,
@@ -238,7 +239,7 @@ class _WorkBodyUIState extends State<WorkBodyUI> with AutomaticKeepAliveClientMi
                 ),
                 Row(
                   children: [
-                    Text('timeCount: $taskCount'),
+                    Text('taskCount: $taskCount'),
                     Expanded(
                       child: Slider(
                           value: taskCountIndex,
@@ -442,12 +443,13 @@ class _WorkBodyUIState extends State<WorkBodyUI> with AutomaticKeepAliveClientMi
   List<TimerTask> hackTaskList2 = List.empty(growable: true);
 
   _hack1() {
+    int i = 0;
     while (true) {
       if (hackTaskList1.length > taskCount) {
         break;
       }
       hackTaskList1.add(TimerTask(
-          offset: timeOffset,
+          offset: timeOffset + 2 * i++,
           timerStateChange: () => setState(() {}),
           timerAction: () async {
             RoomInfo? room = roomInfoList?.last;
@@ -490,12 +492,13 @@ class _WorkBodyUIState extends State<WorkBodyUI> with AutomaticKeepAliveClientMi
   }
 
   _hack2() {
+    int i = 0;
     while (true) {
       if (hackTaskList2.length > taskCount) {
         break;
       }
       hackTaskList2.add(TimerTask(
-          offset: timeOffset,
+          offset: timeOffset + 2 * i++,
           timerStateChange: () => setState(() {}),
           timerAction: () async {
             RoomInfo? room = roomInfoList?.last;
@@ -600,6 +603,7 @@ class TimerTask {
   final int? offset;
 
   TimerTask({this.timerAction, this.timerStateChange, this.offset}) {
+    // print('TimerTask: offset: $offset');
     _startTimer();
   }
 
