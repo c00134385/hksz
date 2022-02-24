@@ -462,7 +462,7 @@ class _WorkBodyUIState extends State<WorkBodyUI> with AutomaticKeepAliveClientMi
                   .catchError((e) {
                 print('e: $e');
                 result = '$e';
-                return;
+                return e;
               });
 
               result = ret.toString();
@@ -481,10 +481,11 @@ class _WorkBodyUIState extends State<WorkBodyUI> with AutomaticKeepAliveClientMi
                   .catchError((e) {
                 print('e: $e');
                 result = '$e';
-                return;
+                return e;
               });
 
               result = ret.toString();
+              return result;
             }
           }));
       setState(() {});
@@ -513,10 +514,11 @@ class _WorkBodyUIState extends State<WorkBodyUI> with AutomaticKeepAliveClientMi
                   .catchError((e) {
                 print('e: $e');
                 result = '$e';
-                return;
+                return e;
               });
 
               result = ret.toString();
+              return result;
             }
           }));
       setState(() {});
